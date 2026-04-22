@@ -1,10 +1,10 @@
+<img width="2940" height="1672" alt="xhs-fi2" src="https://github.com/user-attachments/assets/33d40fff-f6f0-487c-8b38-e1ced770cfb8" />
+
+
 # Fantastic Island
 
 [English](./README.md) | [简体中文](./README.zh-CN.md)
 
-<p align="center">
-  <img src="./docs/images/island-codex.png" alt="Fantastic Island Codex module" width="100%" />
-</p>
 
 Fantastic Island is an extensible notch app for macOS.
 
@@ -28,8 +28,10 @@ The `Codex` and `Clash` modules continue from open-source foundations. The spinn
 ## Settings And Modularity
 
 <p align="center">
-  <img src="./docs/images/settings-general.png" alt="Fantastic Island general settings" width="48%" />
-  <img src="./docs/images/settings-wind-drive.png" alt="Fantastic Island wind drive and module configuration" width="48%" />
+  <img src="./docs/images/settings-general.png" alt="Fantastic Island general settings" />
+</p>
+<p align="center">
+  <img src="./docs/images/settings-wind-drive.png" alt="Fantastic Island wind drive and module configuration" />
 </p>
 
 The settings surface keeps app-level behavior, `Wind Drive`, module toggles, and design token debugging in one place. The shell stays stable while the module layer remains easy to extend.
