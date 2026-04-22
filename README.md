@@ -51,6 +51,8 @@ The settings surface keeps app-level behavior, `Wind Drive`, module toggles, and
 
 The `Codex` module acts like a local workspace that lives inside the notch. Session state, quota, and recent activity stay visible without forcing you back into the terminal every few seconds.
 
+`Claude` is not wired into the agent monitoring path right now. This is less an architectural decision than an account-level incident: it banned my account, so this part currently stays focused on local `Codex` workflows.
+
 ![Fantastic Island Codex module](./docs/images/island-codex.png)
 
 ### Player

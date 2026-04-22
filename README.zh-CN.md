@@ -1,10 +1,9 @@
+<img width="2940" height="1672" alt="xhs-fi2" src="https://github.com/user-attachments/assets/33d40fff-f6f0-487c-8b38-e1ced770cfb8" />
+
+
 # Fantastic Island
 
 [English](./README.md) | [简体中文](./README.zh-CN.md)
-
-<p align="center">
-  <img src="./docs/images/island-codex.png" alt="Fantastic Island Codex module" width="100%" />
-</p>
 
 Fantastic Island 是一个面向 macOS 刘海区域的可扩展岛面应用。
 
@@ -28,8 +27,10 @@ Fantastic Island 是一个面向 macOS 刘海区域的可扩展岛面应用。
 ## 设置与模组化
 
 <p align="center">
-  <img src="./docs/images/settings-general.png" alt="Fantastic Island general settings" width="48%" />
-  <img src="./docs/images/settings-wind-drive.png" alt="Fantastic Island wind drive and module configuration" width="48%" />
+  <img src="./docs/images/settings-general.png" alt="Fantastic Island general settings" />
+</p>
+<p align="center">
+  <img src="./docs/images/settings-wind-drive.png" alt="Fantastic Island wind drive and module configuration" />
 </p>
 
 设置页把应用级行为、`Wind Drive`、模组开关和设计 token 调试入口放进了同一套界面。壳层保持稳定，模组层则可以继续扩展。
@@ -48,6 +49,8 @@ Fantastic Island 是一个面向 macOS 刘海区域的可扩展岛面应用。
 ### Codex
 
 `Codex` 模组更像一个住在刘海里的本地工作台。会话状态、额度信息和最近活动都能直接看到，不需要频繁切回终端窗口。
+
+`Claude` 暂时没有接进 agent 监控这条链路。这不是架构取舍，而是账号事故：它把我号封了，所以这部分目前先专注在本地 `Codex` 工作流上。
 
 ![Fantastic Island Codex module](./docs/images/island-codex.png)
 
