@@ -42,8 +42,8 @@ final class PlayerModuleModel: ObservableObject, IslandModule {
 
     private enum PollCadence {
         static let playing: Duration = .milliseconds(750)
-        static let paused: Duration = .seconds(5)
-        static let stopped: Duration = .seconds(15)
+        static let activeSourceApp: Duration = .seconds(1)
+        static let idle: Duration = .seconds(15)
     }
 
     let id = PlayerModuleModel.moduleID
@@ -56,14 +56,21 @@ final class PlayerModuleModel: ObservableObject, IslandModule {
     @Published private(set) var defaultSourceOptions: [PlayerSourceKind] = []
     @Published private(set) var defaultSource: PlayerSourceKind?
     @Published private(set) var trackSwitchNotification: TrackSwitchNotification?
+    @Published private(set) var isResolvingAutomationAccess = false
 
     private let mediaCoordinator = PlayerMediaCoordinator()
     private var pollingTask: Task<Void, Never>?
     private var isRefreshing = false
     private var lastObservedTrackIdentity: TrackIdentity?
+    private var workspaceObservers: [NSObjectProtocol] = []
+    private static let automationSettingsURLs: [URL] = [
+        URL(string: "x-apple.systempreferences:com.apple.settings.PrivacySecurity.extension?Privacy_Automation"),
+        URL(string: "x-apple.systempreferences:com.apple.preference.security?Privacy_Automation"),
+    ].compactMap { $0 }
 
     init() {
         syncSourceAvailability()
+        configureWorkspaceObservers()
         pollingTask = Task { [weak self] in
             await self?.runPollingLoop()
         }
@@ -71,6 +78,9 @@ final class PlayerModuleModel: ObservableObject, IslandModule {
 
     deinit {
         pollingTask?.cancel()
+        for observer in workspaceObservers {
+            NSWorkspace.shared.notificationCenter.removeObserver(observer)
+        }
     }
 
     var collapsedSummaryItems: [CollapsedSummaryItem] {
@@ -128,7 +138,19 @@ final class PlayerModuleModel: ObservableObject, IslandModule {
     var allowsInternalScrolling: Bool { false }
 
     var supportsTransportControls: Bool {
-        nowPlayingState.supportsTransportControls || defaultSource != nil
+        guard nowPlayingState.automationIssue == nil else {
+            return false
+        }
+
+        return nowPlayingState.supportsTransportControls || defaultSource != nil
+    }
+
+    var automationIssue: PlayerAutomationIssue? {
+        nowPlayingState.automationIssue
+    }
+
+    var canRequestAutomationAccess: Bool {
+        automationIssue != nil && !isResolvingAutomationAccess
     }
 
     var defaultSourceSelection: PlayerSourceKind {
@@ -229,9 +251,66 @@ final class PlayerModuleModel: ObservableObject, IslandModule {
         )
     }
 
+    func requestAutomationAccess() {
+        guard let sourceKind = nowPlayingState.automationIssueSource ?? defaultSource else {
+            return
+        }
+
+        requestAutomationAccess(for: sourceKind)
+    }
+
+    func openAutomationSettings() {
+        for url in Self.automationSettingsURLs where NSWorkspace.shared.open(url) {
+            return
+        }
+
+        let settingsBundleIDs = [
+            "com.apple.SystemSettings",
+            "com.apple.systempreferences",
+        ]
+        for bundleIdentifier in settingsBundleIDs {
+            if let url = NSWorkspace.shared.urlForApplication(withBundleIdentifier: bundleIdentifier) {
+                NSWorkspace.shared.open(url)
+                return
+            }
+        }
+    }
+
     private func refreshSoon(after delay: TimeInterval = 0.25) {
         DispatchQueue.main.asyncAfter(deadline: .now() + delay) { [weak self] in
             self?.refresh()
+        }
+    }
+
+    private func configureWorkspaceObservers() {
+        let notificationCenter = NSWorkspace.shared.notificationCenter
+        let observedNames: [Notification.Name] = [
+            NSWorkspace.didLaunchApplicationNotification,
+            NSWorkspace.didActivateApplicationNotification,
+            NSWorkspace.didTerminateApplicationNotification,
+        ]
+
+        for name in observedNames {
+            let observer = notificationCenter.addObserver(
+                forName: name,
+                object: nil,
+                queue: .main
+            ) { [weak self] notification in
+                let bundleIdentifier =
+                    (notification.userInfo?[NSWorkspace.applicationUserInfoKey] as? NSRunningApplication)?
+                    .bundleIdentifier
+
+                Task { @MainActor [weak self, bundleIdentifier] in
+                    guard let self,
+                          let bundleIdentifier,
+                          PlayerSourceKind.allCases.contains(where: { $0.bundleIdentifier == bundleIdentifier }) else {
+                        return
+                    }
+
+                    self.refreshSoon(after: 0.1)
+                }
+            }
+            workspaceObservers.append(observer)
         }
     }
 
@@ -322,6 +401,30 @@ final class PlayerModuleModel: ObservableObject, IslandModule {
         )
     }
 
+    private func requestAutomationAccess(for sourceKind: PlayerSourceKind) {
+        guard !isResolvingAutomationAccess else {
+            return
+        }
+
+        isResolvingAutomationAccess = true
+        NSApplication.shared.activate(ignoringOtherApps: true)
+        Task.detached(priority: .userInitiated) { [sourceKind] in
+            _ = PlayerMediaCoordinator.determineAutomationPermission(
+                for: sourceKind,
+                askUserIfNeeded: true
+            )
+
+            await MainActor.run { [weak self] in
+                guard let self else {
+                    return
+                }
+
+                self.isResolvingAutomationAccess = false
+                self.refreshSoon(after: 0.1)
+            }
+        }
+    }
+
     private func runPollingLoop() async {
         refresh()
 
@@ -337,13 +440,20 @@ final class PlayerModuleModel: ObservableObject, IslandModule {
     }
 
     private func pollDelay(for state: PlayerNowPlayingState) -> Duration {
+        if !PlayerSourceRegistry.runningControllableSources().isEmpty {
+            switch state.playbackStatus {
+            case .playing:
+                return PollCadence.playing
+            case .paused, .stopped:
+                return PollCadence.activeSourceApp
+            }
+        }
+
         switch state.playbackStatus {
         case .playing:
             return PollCadence.playing
-        case .paused:
-            return PollCadence.paused
-        case .stopped:
-            return PollCadence.stopped
+        case .paused, .stopped:
+            return PollCadence.idle
         }
     }
 }

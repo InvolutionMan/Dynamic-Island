@@ -1,8 +1,15 @@
 import AppKit
+import Carbon
 import Foundation
 
 @MainActor
 final class PlayerMediaCoordinator {
+    private enum AppleEventError {
+        static let noError: OSStatus = 0
+        static let eventNotPermitted: OSStatus = -1743
+        static let wouldRequireUserConsent: OSStatus = -1744
+    }
+
     private enum TransportCommand {
         case previousTrack
         case togglePlayPause
@@ -29,9 +36,35 @@ final class PlayerMediaCoordinator {
         var artworkImage: NSImage?
     }
 
+    private enum FetchResult {
+        case snapshot(PlayerSnapshot)
+        case automationIssue(PlayerAutomationIssue)
+        case unavailable
+    }
+
+    private struct AppleScriptExecutionResult {
+        let descriptor: NSAppleEventDescriptor?
+        let error: NSDictionary?
+
+        var errorCode: Int? {
+            error?[NSAppleScript.errorNumber] as? Int
+        }
+
+        var stringValue: String? {
+            guard let descriptor,
+                  descriptor.descriptorType != typeNull else {
+                return nil
+            }
+
+            let output = (descriptor.stringValue ?? "")
+                .trimmingCharacters(in: .whitespacesAndNewlines)
+            return output.isEmpty ? nil : output
+        }
+    }
+
     private struct ScriptSource {
         let kind: PlayerSourceKind
-        let fetchState: () -> PlayerSnapshot?
+        let fetchState: () -> FetchResult
         let previousTrack: () -> Void
         let togglePlayPause: () -> Void
         let nextTrack: () -> Void
@@ -56,25 +89,36 @@ final class PlayerMediaCoordinator {
         autoreleasepool {
             let frontmostBundleID = NSWorkspace.shared.frontmostApplication?.bundleIdentifier
             var pausedCandidate: PlayerSnapshot?
+            var automationIssueCandidate: PlayerAutomationIssue?
 
             for source in prioritizedSources(frontmostBundleID: frontmostBundleID) {
-                guard let snapshot = source.fetchState() else {
+                switch source.fetchState() {
+                case let .snapshot(snapshot):
+                    if snapshot.playbackStatus == .playing {
+                        lastPreferredSourceKind = snapshot.source
+                        return toState(snapshot)
+                    }
+
+                    if pausedCandidate == nil {
+                        pausedCandidate = snapshot
+                    }
+                case let .automationIssue(issue):
+                    if automationIssueCandidate == nil {
+                        automationIssueCandidate = issue
+                    }
+                case .unavailable:
                     continue
-                }
-
-                if snapshot.playbackStatus == .playing {
-                    lastPreferredSourceKind = snapshot.source
-                    return toState(snapshot)
-                }
-
-                if pausedCandidate == nil {
-                    pausedCandidate = snapshot
                 }
             }
 
             if let pausedCandidate {
                 lastPreferredSourceKind = pausedCandidate.source
                 return toState(pausedCandidate)
+            }
+
+            if let automationIssueCandidate {
+                lastPreferredSourceKind = nil
+                return .issueState(automationIssueCandidate)
             }
 
             lastPreferredSourceKind = nil
@@ -104,6 +148,31 @@ final class PlayerMediaCoordinator {
 
     func cycleRepeat(for sourceKind: PlayerSourceKind?) {
         resolvedSource(for: sourceKind)?.cycleRepeat()
+    }
+
+    nonisolated static func automationPermissionStatus(
+        for sourceKind: PlayerSourceKind?,
+        askUserIfNeeded: Bool
+    ) -> OSStatus {
+        guard let sourceKind,
+              isApplicationRunning(bundleIdentifier: sourceKind.bundleIdentifier) else {
+            return OSStatus(procNotFound)
+        }
+
+        let targetDescriptor = NSAppleEventDescriptor(bundleIdentifier: sourceKind.bundleIdentifier)
+        return AEDeterminePermissionToAutomateTarget(
+            targetDescriptor.aeDesc,
+            AEEventClass(typeWildCard),
+            AEEventID(typeWildCard),
+            askUserIfNeeded
+        )
+    }
+
+    nonisolated static func determineAutomationPermission(
+        for sourceKind: PlayerSourceKind?,
+        askUserIfNeeded: Bool
+    ) -> OSStatus {
+        automationPermissionStatus(for: sourceKind, askUserIfNeeded: askUserIfNeeded)
     }
 
     @discardableResult
@@ -175,7 +244,8 @@ final class PlayerMediaCoordinator {
             track: snapshot.track,
             shuffleMode: snapshot.shuffleMode,
             repeatMode: snapshot.repeatMode,
-            artworkImage: snapshot.artworkImage
+            artworkImage: snapshot.artworkImage,
+            automationIssue: nil
         )
     }
 
@@ -204,7 +274,7 @@ final class PlayerMediaCoordinator {
         ScriptSource(
             kind: .music,
             fetchState: { [weak self] in
-                self?.fetchMusicState()
+                self?.fetchMusicState() ?? .unavailable
             },
             previousTrack: {
                 Self.runAppleScript([
@@ -256,7 +326,7 @@ final class PlayerMediaCoordinator {
         ScriptSource(
             kind: .spotify,
             fetchState: { [weak self] in
-                self?.fetchSpotifyState()
+                self?.fetchSpotifyState() ?? .unavailable
             },
             previousTrack: {
                 Self.runAppleScript([
@@ -283,13 +353,17 @@ final class PlayerMediaCoordinator {
         )
     }
 
-    private func fetchMusicState() -> PlayerSnapshot? {
+    private func fetchMusicState() -> FetchResult {
         autoreleasepool {
             guard Self.isApplicationRunning(bundleIdentifier: PlayerSourceKind.music.bundleIdentifier) else {
-                return nil
+                return .unavailable
             }
 
-            guard let output = Self.runAppleScript([
+            if let permissionIssue = permissionIssue(for: .music) {
+                return .automationIssue(permissionIssue)
+            }
+
+            let result = Self.runAppleScript([
                 #"tell application "Music""#,
                 #"set currentState to player state as text"#,
                 #"if currentState is "stopped" then return "stopped""#,
@@ -304,24 +378,26 @@ final class PlayerMediaCoordinator {
                 #"set AppleScript's text item delimiters to (ASCII character 31)"#,
                 #"return {currentState, trackName, artistName, albumName, (durationSeconds as text), (elapsedSeconds as text), (shuffleEnabled as text), repeatMode} as text"#,
                 #"end tell"#,
-            ]) else {
-                return nil
+            ])
+
+            guard let output = result.stringValue else {
+                return .unavailable
             }
 
             if output == "stopped" {
-                return PlayerSnapshot(
+                return .snapshot(PlayerSnapshot(
                     source: .music,
                     playbackStatus: .stopped,
                     track: nil,
                     shuffleMode: .unsupported,
                     repeatMode: .unsupported,
                     artworkImage: nil
-                )
+                ))
             }
 
             let parts = output.components(separatedBy: "\u{1F}")
             guard parts.count >= 8 else {
-                return nil
+                return .unavailable
             }
 
             let track = PlayerTrackMetadata(
@@ -333,7 +409,7 @@ final class PlayerMediaCoordinator {
                 artworkURL: nil
             )
 
-            return PlayerSnapshot(
+            return .snapshot(PlayerSnapshot(
                 source: .music,
                 playbackStatus: playbackStatus(for: parts[0]),
                 track: track,
@@ -342,17 +418,21 @@ final class PlayerMediaCoordinator {
                 artworkImage: cachedArtwork(for: musicArtworkCacheKey(for: track)) {
                     loadMusicArtwork()
                 }
-            )
+            ))
         }
     }
 
-    private func fetchSpotifyState() -> PlayerSnapshot? {
+    private func fetchSpotifyState() -> FetchResult {
         autoreleasepool {
             guard Self.isApplicationRunning(bundleIdentifier: PlayerSourceKind.spotify.bundleIdentifier) else {
-                return nil
+                return .unavailable
             }
 
-            guard let output = Self.runAppleScript([
+            if let permissionIssue = permissionIssue(for: .spotify) {
+                return .automationIssue(permissionIssue)
+            }
+
+            let result = Self.runAppleScript([
                 #"tell application "Spotify""#,
                 #"set currentState to player state as text"#,
                 #"if currentState is "stopped" then return "stopped""#,
@@ -366,24 +446,26 @@ final class PlayerMediaCoordinator {
                 #"set AppleScript's text item delimiters to (ASCII character 31)"#,
                 #"return {currentState, trackName, artistName, albumName, (durationMs as text), (elapsedSeconds as text), artworkURL} as text"#,
                 #"end tell"#,
-            ]) else {
-                return nil
+            ])
+
+            guard let output = result.stringValue else {
+                return .unavailable
             }
 
             if output == "stopped" {
-                return PlayerSnapshot(
+                return .snapshot(PlayerSnapshot(
                     source: .spotify,
                     playbackStatus: .stopped,
                     track: nil,
                     shuffleMode: .unsupported,
                     repeatMode: .unsupported,
                     artworkImage: nil
-                )
+                ))
             }
 
             let parts = output.components(separatedBy: "\u{1F}")
             guard parts.count >= 7 else {
-                return nil
+                return .unavailable
             }
 
             let artworkURL = URL(string: parts[6])
@@ -396,7 +478,7 @@ final class PlayerMediaCoordinator {
                 artworkURL: artworkURL
             )
 
-            return PlayerSnapshot(
+            return .snapshot(PlayerSnapshot(
                 source: .spotify,
                 playbackStatus: playbackStatus(for: parts[0]),
                 track: track,
@@ -405,7 +487,22 @@ final class PlayerMediaCoordinator {
                 artworkImage: cachedArtwork(for: spotifyArtworkCacheKey(for: track, artworkURL: artworkURL)) {
                     loadArtwork(from: artworkURL)
                 }
-            )
+            ))
+        }
+    }
+
+    private func permissionIssue(for source: PlayerSourceKind) -> PlayerAutomationIssue? {
+        switch Self.automationPermissionStatus(for: source, askUserIfNeeded: false) {
+        case AppleEventError.noError:
+            return nil
+        case OSStatus(procNotFound):
+            return nil
+        case AppleEventError.eventNotPermitted:
+            return .permissionDenied(source: source)
+        case AppleEventError.wouldRequireUserConsent:
+            return .permissionRequired(source: source)
+        default:
+            return .permissionRequired(source: source)
         }
     }
 
@@ -493,13 +590,15 @@ final class PlayerMediaCoordinator {
     }
 
     private func loadMusicArtwork() -> NSImage? {
-        guard let descriptor = Self.runAppleScriptDescriptor([
+        let result = Self.runAppleScriptDescriptor([
             #"tell application "Music""#,
             #"set currentTrack to current track"#,
             #"if (count of artworks of currentTrack) is 0 then return missing value"#,
             #"return data of artwork 1 of currentTrack"#,
             #"end tell"#,
-        ]) else {
+        ])
+
+        guard let descriptor = result.descriptor else {
             return nil
         }
 
@@ -529,43 +628,30 @@ final class PlayerMediaCoordinator {
     }
 
     @discardableResult
-    private static func runAppleScript(_ lines: [String]) -> String? {
+    private static func runAppleScript(_ lines: [String]) -> AppleScriptExecutionResult {
         autoreleasepool {
-            guard let descriptor = runAppleScriptDescriptor(lines) else {
-                return nil
-            }
-
-            if descriptor.descriptorType == typeNull {
-                return nil
-            }
-
-            let output = (descriptor.stringValue ?? "")
-                .trimmingCharacters(in: .whitespacesAndNewlines)
-            return output.isEmpty ? nil : output
+            runAppleScriptDescriptor(lines)
         }
     }
 
-    private static func runAppleScriptDescriptor(_ lines: [String]) -> NSAppleEventDescriptor? {
+    private static func runAppleScriptDescriptor(_ lines: [String]) -> AppleScriptExecutionResult {
         autoreleasepool {
             let source = lines.joined(separator: "\n")
             guard let script = NSAppleScript(source: source) else {
-                return nil
+                return AppleScriptExecutionResult(descriptor: nil, error: nil)
             }
 
             var error: NSDictionary?
             let descriptor = script.executeAndReturnError(&error)
-            if error != nil {
-                return nil
-            }
-            return descriptor
+            return AppleScriptExecutionResult(descriptor: descriptor, error: error)
         }
     }
 
-    private static func isApplicationRunning(bundleIdentifier: String) -> Bool {
+    nonisolated private static func isApplicationRunning(bundleIdentifier: String) -> Bool {
         !NSRunningApplication.runningApplications(withBundleIdentifier: bundleIdentifier).isEmpty
     }
 
-    private static func launchApplication(bundleIdentifier: String) -> Bool {
+    nonisolated private static func launchApplication(bundleIdentifier: String) -> Bool {
         let process = Process()
         process.executableURL = URL(fileURLWithPath: "/usr/bin/open")
         process.arguments = ["-b", bundleIdentifier]

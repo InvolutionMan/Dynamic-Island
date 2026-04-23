@@ -1,6 +1,54 @@
 import AppKit
 import Foundation
 
+enum PlayerAutomationIssue: Equatable {
+    case permissionDenied(source: PlayerSourceKind)
+    case permissionRequired(source: PlayerSourceKind)
+
+    var sourceKind: PlayerSourceKind {
+        switch self {
+        case let .permissionDenied(source), let .permissionRequired(source):
+            return source
+        }
+    }
+
+    var canRequestAccess: Bool {
+        switch self {
+        case .permissionRequired:
+            return true
+        case .permissionDenied:
+            return false
+        }
+    }
+
+    var titleText: String {
+        "Automation Access Needed"
+    }
+
+    var detailText: String {
+        switch self {
+        case let .permissionDenied(source):
+            return "Allow access to \(source.displayName) in Privacy & Security > Automation"
+        case let .permissionRequired(source):
+            return "Allow \(Self.hostApplicationName) to control \(source.displayName) when macOS asks"
+        }
+    }
+
+    private static var hostApplicationName: String {
+        if let displayName = Bundle.main.object(forInfoDictionaryKey: "CFBundleDisplayName") as? String,
+           !displayName.isEmpty {
+            return displayName
+        }
+
+        if let bundleName = Bundle.main.object(forInfoDictionaryKey: kCFBundleNameKey as String) as? String,
+           !bundleName.isEmpty {
+            return bundleName
+        }
+
+        return "Fantastic Island"
+    }
+}
+
 enum PlayerPlaybackStatus: String, Equatable {
     case stopped
     case paused
@@ -53,6 +101,7 @@ struct PlayerNowPlayingState: Equatable {
     var shuffleMode: PlayerShuffleMode
     var repeatMode: PlayerRepeatMode
     var artworkImage: NSImage?
+    var automationIssue: PlayerAutomationIssue?
 
     static let empty = PlayerNowPlayingState(
         source: nil,
@@ -60,8 +109,21 @@ struct PlayerNowPlayingState: Equatable {
         track: nil,
         shuffleMode: .unsupported,
         repeatMode: .unsupported,
-        artworkImage: nil
+        artworkImage: nil,
+        automationIssue: nil
     )
+
+    static func issueState(_ issue: PlayerAutomationIssue) -> PlayerNowPlayingState {
+        PlayerNowPlayingState(
+            source: nil,
+            playbackStatus: .stopped,
+            track: nil,
+            shuffleMode: .unsupported,
+            repeatMode: .unsupported,
+            artworkImage: nil,
+            automationIssue: issue
+        )
+    }
 
     static func == (lhs: PlayerNowPlayingState, rhs: PlayerNowPlayingState) -> Bool {
         lhs.source == rhs.source
@@ -69,18 +131,23 @@ struct PlayerNowPlayingState: Equatable {
             && lhs.track == rhs.track
             && lhs.shuffleMode == rhs.shuffleMode
             && lhs.repeatMode == rhs.repeatMode
+            && lhs.automationIssue == rhs.automationIssue
     }
 
     var sourceLabel: String {
         source?.displayName ?? "Player"
     }
 
+    var automationIssueSource: PlayerSourceKind? {
+        automationIssue?.sourceKind
+    }
+
     var titleText: String {
-        track?.title ?? "Nothing Playing"
+        track?.title ?? automationIssue?.titleText ?? "Nothing Playing"
     }
 
     var artistText: String {
-        track?.artist ?? "No active media source"
+        track?.artist ?? automationIssue?.detailText ?? "No active media source"
     }
 
     var durationText: String {
@@ -108,11 +175,11 @@ struct PlayerNowPlayingState: Equatable {
     }
 
     var supportsTransportControls: Bool {
-        source != nil
+        automationIssue == nil && source != nil
     }
 
     var supportsSeeking: Bool {
-        source != nil && (track?.duration ?? 0) > 0
+        automationIssue == nil && source != nil && (track?.duration ?? 0) > 0
     }
 
     var supportsShuffleControl: Bool {

@@ -5,13 +5,13 @@ enum PlayerSourceKind: String, CaseIterable, Equatable, Hashable, Identifiable {
     case music
     case spotify
 
-    var id: String { rawValue }
+    nonisolated var id: String { rawValue }
 
-    var displayName: String {
+    nonisolated var displayName: String {
         PlayerSourceRegistry.descriptor(for: self)?.displayName ?? rawValue.capitalized
     }
 
-    var bundleIdentifier: String {
+    nonisolated var bundleIdentifier: String {
         PlayerSourceRegistry.descriptor(for: self)?.bundleIdentifier ?? ""
     }
 }
@@ -25,7 +25,7 @@ struct PlayerAppDescriptor: Identifiable, Equatable {
 }
 
 enum PlayerSourceRegistry {
-    private static let candidateApps: [PlayerAppDescriptor] = [
+    nonisolated private static let candidateApps: [PlayerAppDescriptor] = [
         PlayerAppDescriptor(
             id: PlayerSourceKind.music.rawValue,
             displayName: "Apple Music",
@@ -63,7 +63,7 @@ enum PlayerSourceRegistry {
         ),
     ]
 
-    static func descriptor(for sourceKind: PlayerSourceKind) -> PlayerAppDescriptor? {
+    nonisolated static func descriptor(for sourceKind: PlayerSourceKind) -> PlayerAppDescriptor? {
         candidateApps.first { $0.sourceKind == sourceKind }
     }
 
@@ -73,6 +73,17 @@ enum PlayerSourceRegistry {
 
     static func installedControllableSources() -> [PlayerSourceKind] {
         installedDescriptors().compactMap(\.sourceKind)
+    }
+
+    static func runningControllableSources() -> [PlayerSourceKind] {
+        candidateApps.compactMap { descriptor in
+            guard let sourceKind = descriptor.sourceKind,
+                  !NSRunningApplication.runningApplications(withBundleIdentifier: descriptor.bundleIdentifier).isEmpty else {
+                return nil
+            }
+
+            return sourceKind
+        }
     }
 
     static func isInstalled(_ sourceKind: PlayerSourceKind) -> Bool {

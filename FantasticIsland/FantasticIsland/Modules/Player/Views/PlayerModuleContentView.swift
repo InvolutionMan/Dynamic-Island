@@ -28,14 +28,21 @@ struct PlayerModuleContentView: View {
             HStack(alignment: .top, spacing: PlayerExpandedMetrics.primaryColumnSpacing) {
                 VStack(alignment: .leading, spacing: PlayerExpandedMetrics.controlsSpacing + 4) {
                     titleBlock
-                    controlsRow
+
+                    if showsAutomationIssue {
+                        automationIssueActionRow
+                    } else {
+                        controlsRow
+                    }
                 }
                 .frame(maxWidth: .infinity, alignment: .topLeading)
 
                 artworkView
             }
 
-            progressSection
+            if !showsAutomationIssue {
+                progressSection
+            }
         }
     }
 
@@ -151,18 +158,36 @@ struct PlayerModuleContentView: View {
                 Text(model.nowPlayingState.titleText)
                     .font(.system(size: 20, weight: .bold))
                     .foregroundStyle(.white.opacity(0.96))
-                    .lineLimit(1)
+                    .lineLimit(showsAutomationIssue ? 2 : 1)
                     .layoutPriority(1)
 
                 Spacer(minLength: 0)
 
-                playbackModeControls
+                if !showsAutomationIssue {
+                    playbackModeControls
+                }
             }
 
             Text(model.nowPlayingState.artistText)
                 .font(.system(size: 15, weight: .medium))
                 .foregroundStyle(.white.opacity(0.56))
-                .lineLimit(1)
+                .lineLimit(showsAutomationIssue ? 2 : 1)
+                .fixedSize(horizontal: false, vertical: true)
+        }
+    }
+
+    private var automationIssueActionRow: some View {
+        HStack(spacing: 10) {
+            if model.canRequestAutomationAccess {
+                issueActionButton(
+                    title: model.isResolvingAutomationAccess ? "Requesting…" : "Grant Access",
+                    action: model.requestAutomationAccess
+                )
+                .disabled(model.isResolvingAutomationAccess)
+            }
+
+            issueActionButton(title: "Open Settings", action: model.openAutomationSettings)
+            issueActionButton(title: "Refresh", action: model.refresh)
         }
     }
 
@@ -249,6 +274,20 @@ struct PlayerModuleContentView: View {
         .buttonStyle(PlayerTransportButtonStyle())
     }
 
+    private func issueActionButton(
+        title: String,
+        action: @escaping () -> Void
+    ) -> some View {
+        Button(action: action) {
+            Text(title)
+                .font(.system(size: 12, weight: .semibold))
+                .foregroundStyle(.white.opacity(0.92))
+                .padding(.horizontal, 12)
+                .frame(height: 30)
+        }
+        .buttonStyle(PlayerIssueActionButtonStyle())
+    }
+
     private func modeButton(
         systemName: String,
         isActive: Bool,
@@ -259,17 +298,36 @@ struct PlayerModuleContentView: View {
         Button(action: action) {
             Image(systemName: systemName)
                 .font(.system(size: 15, weight: .semibold))
-                .foregroundStyle(.white.opacity(isEnabled ? (isActive ? 0.96 : 0.54) : 0.24))
-                .frame(width: 28, height: 24)
-                .contentShape(Rectangle())
+                .foregroundStyle(modeButtonForegroundColor(isActive: isActive, isEnabled: isEnabled))
+                .frame(width: 30, height: 26)
+                .contentShape(RoundedRectangle(cornerRadius: 9, style: .continuous))
         }
-        .buttonStyle(PlayerModeButtonStyle(isActive: isActive))
+        .buttonStyle(PlayerModeButtonStyle(isActive: isActive, isEnabled: isEnabled))
         .disabled(!isEnabled)
         .accessibilityLabel(accessibilityLabel)
     }
 
+    private func modeButtonForegroundColor(
+        isActive: Bool,
+        isEnabled: Bool
+    ) -> Color {
+        guard isEnabled else {
+            return .white.opacity(0.24)
+        }
+
+        if isActive {
+            return .white.opacity(0.96)
+        }
+
+        return .white.opacity(0.58)
+    }
+
     private var displayedProgress: Double {
         scrubProgress ?? model.nowPlayingState.progress
+    }
+
+    private var showsAutomationIssue: Bool {
+        model.automationIssue != nil
     }
 
     private var sourceBadgeImage: NSImage? {
@@ -367,18 +425,76 @@ private struct PlayerTransportButtonStyle: ButtonStyle {
 
 private struct PlayerModeButtonStyle: ButtonStyle {
     let isActive: Bool
+    let isEnabled: Bool
 
     func makeBody(configuration: Configuration) -> some View {
         configuration.label
             .background(
                 RoundedRectangle(cornerRadius: 9, style: .continuous)
                     .fill(
-                        Color.white.opacity(
-                            configuration.isPressed ? 0.16 : (isActive ? 0.1 : 0.001)
-                        )
+                        backgroundFill(isPressed: configuration.isPressed)
                     )
             )
+            .shadow(color: shadowColor(isPressed: configuration.isPressed), radius: isActive ? 10 : 4, x: 0, y: 3)
             .scaleEffect(configuration.isPressed ? 0.94 : 1)
+            .animation(.smooth(duration: 0.14), value: configuration.isPressed)
+    }
+
+    private func backgroundFill(isPressed: Bool) -> some ShapeStyle {
+        if !isEnabled {
+            return AnyShapeStyle(Color.white.opacity(0.015))
+        }
+
+        if isActive {
+            return AnyShapeStyle(
+                LinearGradient(
+                    colors: [
+                        Color.white.opacity(isPressed ? 0.24 : 0.18),
+                        Color.white.opacity(isPressed ? 0.16 : 0.10),
+                    ],
+                    startPoint: .topLeading,
+                    endPoint: .bottomTrailing
+                )
+            )
+        }
+
+        return AnyShapeStyle(
+            LinearGradient(
+                colors: [
+                    Color.white.opacity(isPressed ? 0.12 : 0.08),
+                    Color.white.opacity(isPressed ? 0.07 : 0.035),
+                ],
+                startPoint: .topLeading,
+                endPoint: .bottomTrailing
+            )
+        )
+    }
+
+    private func shadowColor(isPressed: Bool) -> Color {
+        guard isEnabled else {
+            return .clear
+        }
+
+        if isActive {
+            return .black.opacity(isPressed ? 0.20 : 0.30)
+        }
+
+        return .black.opacity(isPressed ? 0.10 : 0.16)
+    }
+}
+
+private struct PlayerIssueActionButtonStyle: ButtonStyle {
+    func makeBody(configuration: Configuration) -> some View {
+        configuration.label
+            .background(
+                RoundedRectangle(cornerRadius: 10, style: .continuous)
+                    .fill(Color.white.opacity(configuration.isPressed ? 0.16 : 0.08))
+            )
+            .overlay {
+                RoundedRectangle(cornerRadius: 10, style: .continuous)
+                    .strokeBorder(Color.white.opacity(configuration.isPressed ? 0.22 : 0.10), lineWidth: 0.8)
+            }
+            .scaleEffect(configuration.isPressed ? 0.97 : 1)
             .animation(.smooth(duration: 0.14), value: configuration.isPressed)
     }
 }
