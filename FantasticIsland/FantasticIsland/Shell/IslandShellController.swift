@@ -209,6 +209,19 @@ final class IslandShellController {
         )
     }
 
+    func expandedContentWidth(for model: IslandAppModel, on screen: NSScreen?) -> CGFloat {
+        let resolvedWidth = CodexIslandChromeMetrics.resolvedExpandedContentWidth(
+            baseContentWidth: expandedContentWidth(for: screen),
+            showsWindDrivePanel: model.showsExpandedWindDrivePanel
+        )
+
+        guard let screen else {
+            return resolvedWidth
+        }
+
+        return min(resolvedWidth, max(0, screen.visibleFrame.width - 32))
+    }
+
     func peekContentWidth(for screen: NSScreen?) -> CGFloat {
         guard let screen else { return CodexIslandPeekMetrics.maximumContentWidth }
         return min(
@@ -312,7 +325,10 @@ final class IslandShellController {
 
     private func holdingPanelSize(for model: IslandAppModel, on screen: NSScreen) -> CGSize {
         let insets = panelShadowInsets
-        let panelWidth = expandedShellWidth(for: screen)
+        let expandedPanelWidth = expandedShellWidth(for: model, on: screen)
+        let panelWidth = model.isInteractivePeeking
+            ? max(expandedPanelWidth, peekShellWidth(for: screen))
+            : expandedPanelWidth
         let targetOpenedContentHeight =
             model.isInteractivePeeking
             ? peekContentHeight(for: model, on: screen)
@@ -336,8 +352,8 @@ final class IslandShellController {
         return model.peekContentHeight + expandedContentTopClearance
     }
 
-    private func expandedShellWidth(for screen: NSScreen?) -> CGFloat {
-        expandedContentWidth(for: screen)
+    private func expandedShellWidth(for model: IslandAppModel, on screen: NSScreen?) -> CGFloat {
+        expandedContentWidth(for: model, on: screen)
             + (CodexIslandChromeMetrics.openedSurfaceContentHorizontalInset * 2)
     }
 

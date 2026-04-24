@@ -577,7 +577,7 @@ final class IslandAppModel: ObservableObject {
         showsExpandedWindDrivePanel = showsPanel
         UserDefaults.standard.set(showsPanel, forKey: IslandDefaults.windDriveShowsExpandedPanelKey)
 
-        if islandExpanded, !islandLayoutTransitionInFlight {
+        if !islandLayoutTransitionInFlight {
             shellController.reposition()
         }
     }

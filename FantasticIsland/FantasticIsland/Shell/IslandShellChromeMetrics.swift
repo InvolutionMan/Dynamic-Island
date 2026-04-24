@@ -55,6 +55,7 @@ enum CodexIslandChromeMetrics {
     static let defaultModuleToolbarButtonGroupSpacing: CGFloat = 12
 
     static let defaultPreferredTallModuleOpenedContentHeight: CGFloat = 560 // 高内容模块的默认目标展开高度
+    static let defaultMinimumExpandedContentWidthWithoutWindDrivePanel: CGFloat = 480
 
     static var openedShadowHorizontalInset: CGFloat { CGFloat(IslandDesignTokenRuntime.current.shell.openedShadowHorizontalInset) }
     static var openedShadowBottomInset: CGFloat { CGFloat(IslandDesignTokenRuntime.current.shell.openedShadowBottomInset) }
@@ -90,13 +91,33 @@ enum CodexIslandChromeMetrics {
 
     static var windDrivePanelSide: CGFloat { CGFloat(IslandDesignTokenRuntime.current.windDrive.panelSide) }
     static var preferredTallModuleOpenedContentHeight: CGFloat { defaultPreferredTallModuleOpenedContentHeight }
+    static var minimumExpandedContentWidthWithoutWindDrivePanel: CGFloat {
+        defaultMinimumExpandedContentWidthWithoutWindDrivePanel
+    }
 
     static var moduleChromeHeight: CGFloat =
         expandedContentTopPadding + moduleColumnSpacing + moduleNavigationRowHeight
     static var windDrivePanelWidth: CGFloat { windDrivePanelSide }
     static var windDrivePanelHeight: CGFloat { windDrivePanelSide }
+    static var hiddenWindDriveExpandedContentWidthReduction: CGFloat {
+        windDrivePanelWidth + moduleColumnSpacing
+    }
     static var minimumExpandedHeightWithWindDrivePanel: CGFloat =
         expandedContentTopPadding + windDrivePanelHeight + expandedContentBottomPadding
+
+    static func resolvedExpandedContentWidth(
+        baseContentWidth: CGFloat,
+        showsWindDrivePanel: Bool
+    ) -> CGFloat {
+        guard !showsWindDrivePanel else {
+            return baseContentWidth
+        }
+
+        return max(
+            minimumExpandedContentWidthWithoutWindDrivePanel,
+            baseContentWidth - hiddenWindDriveExpandedContentWidthReduction
+        )
+    }
 }
 
 @MainActor

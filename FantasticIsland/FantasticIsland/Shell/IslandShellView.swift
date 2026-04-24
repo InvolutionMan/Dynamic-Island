@@ -149,9 +149,13 @@ struct IslandShellView: View {
         let openSurfaceHorizontalInset = CodexIslandChromeMetrics.openedSurfaceContentHorizontalInset
 
         let closedTotalWidth = closedContentWidth
+        let resolvedExpandedContentWidth = CodexIslandChromeMetrics.resolvedExpandedContentWidth(
+            baseContentWidth: expandedContentWidth,
+            showsWindDrivePanel: model.showsExpandedWindDrivePanel
+        )
         let expandedSurfaceWidth = min(
             layoutWidth,
-            expandedContentWidth + (openSurfaceHorizontalInset * 2)
+            resolvedExpandedContentWidth + (openSurfaceHorizontalInset * 2)
         )
         let peekSurfaceWidth = min(
             layoutWidth,
@@ -190,7 +194,7 @@ struct IslandShellView: View {
         let surfaceHeight = surfaceMetrics.height
 
         let openBodyWidth = max(0, surfaceWidth - (openSurfaceHorizontalInset * 2))
-        let premeasuredModuleColumnWidth = expandedModuleColumnWidth(for: expandedContentWidth)
+        let premeasuredModuleColumnWidth = expandedModuleColumnWidth(for: resolvedExpandedContentWidth)
         let surfaceShape = CodexNotchShape(
             topCornerRadius: usesOpenedVisualState ? CodexNotchShape.openedTopRadius : CodexNotchShape.closedTopRadius,
             bottomCornerRadius: usesOpenedVisualState ? CodexNotchShape.openedBottomRadius : CodexNotchShape.closedBottomRadius
