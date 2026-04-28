@@ -9,7 +9,8 @@ enum ClashConfigSupport {
     static let builtInUIName = "metacubexd"
 
     static func defaultAPIBaseURL() -> URL {
-        let defaults = UserDefaults.standard.persistentDomain(forName: "com.west2online.ClashXPro")
+        let defaults = UserDefaults.standard.persistentDomain(forName: "com.metacubex.ClashX.meta")
+            ?? UserDefaults.standard.persistentDomain(forName: "com.west2online.ClashXPro")
         let port = defaults?["apiPort"] as? Int ?? 9090
         return URL(string: "http://127.0.0.1:\(port)")!
     }
@@ -897,13 +898,13 @@ enum ClashModuleError: LocalizedError {
             return NSLocalizedString("The subscription returned an empty response.", comment: "")
         case .unsupportedSubscriptionFormat:
             return NSLocalizedString(
-                "The subscription must return a Clash or Mihomo YAML config. Convert non-YAML subscriptions upstream first.",
+                "The subscription must return a ClashX Meta or Mihomo YAML config. Convert non-YAML subscriptions upstream first.",
                 comment: ""
             )
         case .insecureSubscriptionURL:
             return NSLocalizedString("Built-in subscriptions must use http:// or https://.", comment: "")
         case .invalidManagedProxyPort:
-            return NSLocalizedString("No local Clash port is available for the selected managed capture mode.", comment: "")
+            return NSLocalizedString("No local ClashX Meta port is available for the selected managed capture mode.", comment: "")
         case .managedRuntimeAPIUnavailable:
             return NSLocalizedString("Core started but API did not become reachable.", comment: "")
         case .managedTunCaptureUnavailable:

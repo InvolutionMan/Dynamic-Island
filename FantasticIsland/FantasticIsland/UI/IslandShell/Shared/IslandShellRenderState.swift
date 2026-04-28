@@ -3,6 +3,7 @@ import SwiftUI
 
 struct IslandShellClosedHeaderRenderState {
     let fanAnimationState: IslandFanAnimationState
+    let computerFanTelemetry: ComputerFanTelemetry
     let compactModules: [CompactModuleSummary]
 }
 

@@ -32,7 +32,7 @@ final class ClashAdvancedPanelWindowController: NSObject, NSWindowDelegate {
 
         let window = NSWindow(contentViewController: contentController)
         window.delegate = self
-        window.title = NSLocalizedString("Clash Advanced Panel", comment: "")
+        window.title = NSLocalizedString("ClashX Meta Advanced Panel", comment: "")
         window.styleMask = [.titled, .closable, .miniaturizable, .resizable, .fullSizeContentView]
         window.setContentSize(NSSize(width: 1180, height: 760))
         window.minSize = NSSize(width: 980, height: 680)

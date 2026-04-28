@@ -21,7 +21,7 @@ private struct ClashPreviewCard: View {
     }
 }
 
-#Preview("Clash Gallery") {
+#Preview("ClashX Meta Gallery") {
     ScrollView {
         VStack(alignment: .leading, spacing: 24) {
             IslandPreviewContainer(title: "Expanded") {

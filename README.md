@@ -14,10 +14,10 @@ The fan component is mostly here because it is fun. You can hide it if you want,
 The repository currently ships with three built-in modules:
 
 - `Codex`
-- `Clash`
+- `Claude Code`
 - `Player`
 
-The `Codex` and `Clash` modules continue to evolve from open-source foundations.
+The `Codex` and `Claude Code` modules keep local AI workflows close to the island surface.
 
 ## Core Idea
 
@@ -41,7 +41,7 @@ The settings page keeps app-level behavior, `Wind Drive`, module toggles, and th
 | Module / Component | Description |
 | --- | --- |
 | `Codex` | Pulls local Codex workflow state into the island, including sessions, quota, approvals, tool activity, and notifications. |
-| `Clash` | Wraps Mihomo / Clash runtime integration and managed controls, with room for traffic, proxy groups, rules, connections, and logs. |
+| `Claude Code` | Tracks whether the local Claude Code CLI is active and keeps its configuration path close to the module controls. |
 | `Player` | Reads current media playback state and exposes artwork, progress, and basic transport controls. |
 | `Wind Drive` | A playful fan component in the center of the island, with configurable logo, sound, and presentation behavior. |
 
@@ -51,19 +51,17 @@ The settings page keeps app-level behavior, `Wind Drive`, module toggles, and th
 
 The `Codex` module is more like a local workspace living inside the notch. Session state, quota, and recent activity stay visible without making you jump back to the terminal every few seconds.
 
-`Claude` is not wired into the agent monitoring path right now because it banned my account. To be fair, I also prefer `Codex`, so...
-
 ![Fantastic Island Codex module](./docs/images/island-codex.png)
+
+### Claude Code
+
+The `Claude Code` module follows the compact Codex-style module surface: it checks for a local `claude` command, watches whether a Claude Code process is active, and links directly to `~/.claude`.
 
 ### Player
 
-The `Player` module is here to show and control current playback, so media controls can live together with `Codex` and `Clash` without needing another separate UI layer.
+The `Player` module is here to show and control current playback, so media controls can live together with `Codex` and `Claude Code` without needing another separate UI layer.
 
 ![Fantastic Island Player module](./docs/images/island-player.png)
-
-### Clash
-
-The `Clash` module brings network runtime state into the same interaction model: you can treat proxy status, traffic, groups, rules, connections, and logs as first-class island content instead of another detached panel.
 
 ## Repository Scope
 
@@ -82,9 +80,6 @@ Not included:
 - Code signing or notarization setup
 - Personal team identifiers
 - Private local metadata
-- Prebundled Clash runtime, dashboard, or geodata artifacts
-
-The managed Clash workflow is open on the source side, but this public repository does not redistribute packaged runtime assets. If you want the full workflow, you need to supply compliant runtime assets yourself.
 
 ## Build
 
@@ -102,4 +97,4 @@ swift test
 
 ## Upstream And License
 
-The notch shell interaction layer inherits and adapts parts of [open-vibe-island](https://github.com/Octane0411/open-vibe-island). The `Clash` module's source-side integration targets the `mihomo` / `metacubexd` ecosystem, but this repository does not redistribute their packaged runtime releases. See [LICENSE](./LICENSE) and [THIRD_PARTY_NOTICES.md](./THIRD_PARTY_NOTICES.md) for details.
+The notch shell interaction layer inherits and adapts parts of [open-vibe-island](https://github.com/Octane0411/open-vibe-island). See [LICENSE](./LICENSE) and [THIRD_PARTY_NOTICES.md](./THIRD_PARTY_NOTICES.md) for details.

@@ -63,6 +63,7 @@ final class IslandAppModel: ObservableObject {
     @Published private(set) var windDriveCustomLogoPath = ""
     @Published private(set) var windDriveCustomLogoImage: NSImage?
     @Published private(set) var showsExpandedWindDrivePanel = true
+    @Published private(set) var computerFanTelemetry = ComputerFanTelemetry.unavailable
     @Published private(set) var enabledModuleIDs: Set<String> = []
     @Published var islandExpanded = false
     @Published private(set) var islandPeeking = false
@@ -75,13 +76,15 @@ final class IslandAppModel: ObservableObject {
     @Published private(set) var openReason: IslandOpenReason?
 
     let codexFanModule: CodexModuleModel
-    let clashModule: ClashModuleModel
+    let claudeCodeModule: ClaudeCodeModuleModel
     let playerModule: PlayerModuleModel
     let moduleRegistry: IslandModuleRegistry
     let designTokenStore = IslandDebugTokenStore()
+    lazy var clashModule = ClashModuleModel()
 
     private let shellController = IslandShellController()
     private let audioController = CodexAudioController()
+    private let computerFanTelemetryMonitor = ComputerFanTelemetryMonitor()
     private lazy var settingsWindowController = IslandSettingsWindowController(model: self)
 #if DEBUG
     @Published private(set) var debugPanelLockMode: IslandDebugPanelLockMode = .automatic
@@ -117,15 +120,15 @@ final class IslandAppModel: ObservableObject {
 
     init() {
         let codexFanModule = CodexModuleModel()
-        let clashModule = ClashModuleModel()
+        let claudeCodeModule = ClaudeCodeModuleModel()
         let playerModule = PlayerModuleModel()
         IslandDefaults.migrateLegacyValues()
-        let allModules: [any IslandModule] = [codexFanModule, clashModule, playerModule]
+        let allModules: [any IslandModule] = [codexFanModule, claudeCodeModule, playerModule]
         let defaults = UserDefaults.standard
         let loadedEnabledModuleIDs = Self.loadEnabledModuleIDs(defaults: defaults, availableModules: allModules)
 
         self.codexFanModule = codexFanModule
-        self.clashModule = clashModule
+        self.claudeCodeModule = claudeCodeModule
         self.playerModule = playerModule
         self.moduleRegistry = IslandModuleRegistry(modules: allModules)
         self.isAudioMuted = defaults.bool(forKey: IslandDefaults.audioMutedKey)
@@ -148,6 +151,7 @@ final class IslandAppModel: ObservableObject {
 
         audioController.setMuted(isAudioMuted)
         bindModules()
+        bindComputerFanTelemetry()
         refreshFromModules(now: .now)
         shellController.show(using: self)
         _ = globalHotKeyController
@@ -215,7 +219,7 @@ final class IslandAppModel: ObservableObject {
 
     var visibleCompactModules: [CompactModuleSummary] {
         let compactModuleOrder: [String] = [
-            ClashModuleModel.moduleID,
+            ClaudeCodeModuleModel.moduleID,
             CodexModuleModel.moduleID,
         ]
         let supportedCompactModuleIDs = Set(compactModuleOrder)
@@ -223,21 +227,6 @@ final class IslandAppModel: ObservableObject {
         let summaries: [CompactModuleSummary] = enabledModules.compactMap { module in
             guard supportedCompactModuleIDs.contains(module.id) else {
                 return nil
-            }
-
-            if module.id == ClashModuleModel.moduleID,
-               let trafficItem = module.collapsedSummaryItems.first(where: { $0.id == "\(module.id).summary.traffic" }),
-               collapsedSummaryConfiguration.isVisible(trafficItem) {
-                return CompactModuleSummary(
-                    moduleID: module.id,
-                    title: module.title,
-                    symbolName: module.symbolName,
-                    iconAssetName: module.iconAssetName,
-                    content: .clashTraffic(
-                        upload: clashModule.uploadRateText,
-                        download: clashModule.downloadRateText
-                    )
-                )
             }
 
             guard let firstVisibleItem = module.collapsedSummaryItems.first(where: collapsedSummaryConfiguration.isVisible) else {
@@ -272,6 +261,9 @@ final class IslandAppModel: ObservableObject {
             rotationPeriod: activityState.rotationPeriod,
             isSpinning: activityState.isSpinning
         )
+    }
+    var closedFanTelemetryWidth: CGFloat {
+        70
     }
     var audioToggleSymbolName: String {
         isAudioMuted ? "speaker.slash.circle.fill" : "speaker.wave.2.circle.fill"
@@ -346,7 +338,7 @@ final class IslandAppModel: ObservableObject {
     func closedSurfaceWidth(baseCompactWidth: CGFloat, hardwareNotchExclusionWidth: CGFloat = 0) -> CGFloat {
         let moduleSpacing = CodexIslandChromeMetrics.closedModuleSpacing
         let horizontalPadding = CodexIslandChromeMetrics.closedHorizontalPadding * 2
-        let fanWidth: CGFloat = 20
+        let fanWidth: CGFloat = 20 + CodexIslandChromeMetrics.closedModuleContentSpacing + closedFanTelemetryWidth
         let minimumGapAfterFan = CodexIslandChromeMetrics.closedFanModuleSpacing
         let modulesWidth = visibleCompactModules.reduce(0) { $0 + $1.estimatedWidth }
         let totalModuleSpacing = CGFloat(max(visibleCompactModules.count - 1, 0)) * moduleSpacing
@@ -359,6 +351,17 @@ final class IslandAppModel: ObservableObject {
 
         let preferredWidth = horizontalPadding + fanWidth + minimumGapAfterFan + modulesWidth + totalModuleSpacing
         return max(baseCompactWidth + 92, 332, preferredWidth)
+    }
+
+    private func bindComputerFanTelemetry() {
+        computerFanTelemetryMonitor.$telemetry
+            .removeDuplicates()
+            .receive(on: RunLoop.main)
+            .sink { [weak self] telemetry in
+                self?.computerFanTelemetry = telemetry
+                self?.shellController.reposition(refreshRootView: true)
+            }
+            .store(in: &cancellables)
     }
 
     func expandIsland(reason: IslandOpenReason = .manualTap) {
@@ -653,7 +656,7 @@ final class IslandAppModel: ObservableObject {
     }
 
     private func bindModules() {
-        [codexFanModule.objectWillChange, clashModule.objectWillChange, playerModule.objectWillChange].forEach { publisher in
+        [codexFanModule.objectWillChange, claudeCodeModule.objectWillChange, playerModule.objectWillChange].forEach { publisher in
             publisher
                 .sink { [weak self] _ in
                     DispatchQueue.main.async { [weak self] in

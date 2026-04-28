@@ -14,10 +14,10 @@ Fantastic Island 基于开源项目 [open-vibe-island](https://github.com/Octane
 当前仓库已预置三个功能模组：
 
 - `Codex`
-- `Clash`
+- `Claude Code`
 - `Player`
 
-`Codex` 和 `Clash` 模组延续自开源基础继续演进
+`Codex` 和 `Claude Code` 模组会把本地 AI 工作流更贴近岛面。
 
 ## 核心思路
 
@@ -40,7 +40,7 @@ Fantastic Island 源自开源项目 [open-vibe-island](https://github.com/Octane
 | 模组 / 组件 | 说明 |
 | --- | --- |
 | `Codex` | 把本地 Codex 工作流状态收进岛面，包括 session、quota、approval、tool activity 和通知。 |
-| `Clash` | 围绕 Mihomo / Clash 运行时提供接入与托管能力，并继续承载流量、代理组、规则、连接和日志等信息。 |
+| `Claude Code` | 检查本地 Claude Code CLI 是否可用，跟踪当前是否有 Claude Code 进程运行，并把配置目录放进模块控制里。 |
 | `Player` | 读取当前播放状态，提供封面、进度和基础播放控制。 |
 | `Wind Drive` | 岛中央的趣味风扇组件，可自定义 logo、音效和展示方式。 |
 
@@ -50,19 +50,17 @@ Fantastic Island 源自开源项目 [open-vibe-island](https://github.com/Octane
 
 `Codex` 模组更像一个住在刘海里的本地工作台。会话状态、额度信息和最近活动都能直接看到，不需要频繁切回终端窗口。
 
-`Claude` 暂时没有接进 agent 监控这条链路，是因为它把我号封了，当然我本身也更喜欢 Codex，so...
-
 ![Fantastic Island Codex module](./docs/images/island-codex.png)
+
+### Claude Code
+
+`Claude Code` 模组仿照 Codex 的紧凑模块入口：检查本地 `claude` 命令、监听 Claude Code 进程状态，并可以直接打开 `~/.claude`。
 
 ### Player
 
-`Player` 模组用于展示和控制当前播放信息，让媒体控制和 `Codex`、`Clash` 共存，而不必再额外维护一层单独 UI。
+`Player` 模组用于展示和控制当前播放信息，让媒体控制和 `Codex`、`Claude Code` 共存，而不必再额外维护一层单独 UI。
 
 ![Fantastic Island Player module](./docs/images/island-player.png)
-
-### Clash
-
-`Clash` 模组把代理运行时也纳入同一套交互模型：代理状态、流量、分组、规则、连接和日志都可以作为 island 的一等内容，而不是另一个分离面板。
 
 ## 仓库范围
 
@@ -81,9 +79,6 @@ Fantastic Island 源自开源项目 [open-vibe-island](https://github.com/Octane
 - 代码签名与 notarization 配置
 - 个人开发团队标识
 - 私有本地元数据
-- 预打包的 Clash 运行时、面板或 geodata 资源
-
-Clash 托管工作流在源码层面是开放的，但这个公开仓库不分发打包后的运行时资源。如果你要跑完整工作流，需要自行补充合规的运行时资产。
 
 ## 构建
 
@@ -101,4 +96,4 @@ swift test
 
 ## 上游与许可证
 
-Fantastic Island 的刘海壳层交互部分继承并改编自 [open-vibe-island](https://github.com/Octane0411/open-vibe-island)。`Clash` 模组的源码侧集成面向 `mihomo` / `metacubexd` 生态，但当前仓库不分发它们的运行时发布产物。更多信息见 [LICENSE](./LICENSE) 和 [THIRD_PARTY_NOTICES.md](./THIRD_PARTY_NOTICES.md)。
+Fantastic Island 的刘海壳层交互部分继承并改编自 [open-vibe-island](https://github.com/Octane0411/open-vibe-island)。更多信息见 [LICENSE](./LICENSE) 和 [THIRD_PARTY_NOTICES.md](./THIRD_PARTY_NOTICES.md)。

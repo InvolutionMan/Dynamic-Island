@@ -248,11 +248,20 @@ final class IslandShellController {
 
     private var targetScreen: NSScreen? {
         let screens = NSScreen.screens
-        if let notchScreen = screens.first(where: { $0.safeAreaInsets.top > 0 }) {
-            return notchScreen
+        if let mouseScreen = screenContainingMouse(in: screens) {
+            return mouseScreen
         }
 
-        return NSScreen.main ?? screens.first
+        if let mainScreen = NSScreen.main {
+            return mainScreen
+        }
+
+        return screens.first(where: { $0.safeAreaInsets.top > 0 }) ?? screens.first
+    }
+
+    private func screenContainingMouse(in screens: [NSScreen]) -> NSScreen? {
+        let mouseLocation = NSEvent.mouseLocation
+        return screens.first { NSMouseInRect(mouseLocation, $0.frame, false) }
     }
 
     private func makePanel(using model: IslandAppModel) -> IslandShellPanel {
@@ -387,11 +396,7 @@ final class IslandShellController {
     }
 
     private func resolvedPanelScreen(for panel: IslandShellPanel?) -> NSScreen? {
-        if let panelScreen = panel?.screen {
-            return panelScreen
-        }
-
-        return targetScreen ?? NSScreen.main ?? NSScreen.screens.first
+        targetScreen ?? panel?.screen ?? NSScreen.main ?? NSScreen.screens.first
     }
 
     private func updatePanelFrame(_ panel: IslandShellPanel, using model: IslandAppModel, on screen: NSScreen) {

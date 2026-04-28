@@ -9,6 +9,7 @@ enum IslandShellPreviewMocks {
             rotationPeriod: 1.6,
             isSpinning: false
         ),
+        computerFanTelemetry: ComputerFanTelemetry(fanRPM: 2380, averageCPUTemperature: 58),
         compactModules: [
             CompactModuleSummary(
                 moduleID: "codex",
@@ -18,11 +19,11 @@ enum IslandShellPreviewMocks {
                 content: .singleLine("5H 84%")
             ),
             CompactModuleSummary(
-                moduleID: "clash",
-                title: "Clash",
-                symbolName: "lock.shield",
-                iconAssetName: "clashicon",
-                content: .clashTraffic(upload: "12K", download: "96K")
+                moduleID: "claude-code",
+                title: "Claude Code",
+                symbolName: "curlybraces.square",
+                iconAssetName: "claudeIcon",
+                content: .singleLine("CLAUDE ON")
             ),
         ]
     )
@@ -30,7 +31,7 @@ enum IslandShellPreviewMocks {
     static let expandedTabs = IslandShellExpandedNavigationRenderState(
         tabs: [
             IslandShellTabRenderState(id: "codex", title: "Codex", symbolName: "terminal", iconAssetName: "codexicon", isSelected: true, showsPendingBadge: true, action: {}),
-            IslandShellTabRenderState(id: "clash", title: "Clash", symbolName: "lock.shield", iconAssetName: "clashicon", isSelected: false, showsPendingBadge: false, action: {}),
+            IslandShellTabRenderState(id: "claude-code", title: "Claude Code", symbolName: "curlybraces.square", iconAssetName: "claudeIcon", isSelected: false, showsPendingBadge: false, action: {}),
             IslandShellTabRenderState(id: "player", title: "Player", symbolName: "play.square.fill", iconAssetName: nil, isSelected: false, showsPendingBadge: false, action: {}),
         ],
         openSettings: {}

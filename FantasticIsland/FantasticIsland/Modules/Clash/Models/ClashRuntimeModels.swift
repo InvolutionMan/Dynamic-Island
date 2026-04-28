@@ -19,7 +19,7 @@ enum ClashModuleMode: String, CaseIterable, Identifiable {
         switch self {
         case .attach:
             return NSLocalizedString(
-                "Detection mode reads an existing Clash client through its local API and config path. Fantastic Island does not start or manage the runtime in this mode.",
+                "Detection mode reads an existing ClashX Meta client through its local API and config path. Fantastic Island does not start or manage the runtime in this mode.",
                 comment: ""
             )
         case .managed:

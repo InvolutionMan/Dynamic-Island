@@ -75,7 +75,7 @@
 
 "Runtime Mode" = "Runtime Mode";
 "Mode" = "Mode";
-"Choose whether Fantastic Island attaches to an existing Clash API or manages its own runtime." = "Choose whether Fantastic Island attaches to an existing Clash API or manages its own runtime.";
+"Choose whether Fantastic Island attaches to an existing ClashX Meta API or manages its own runtime." = "Choose whether Fantastic Island attaches to an existing ClashX Meta API or manages its own runtime.";
 "Runtime" = "Runtime";
 "API" = "API";
 "Attach Configuration" = "Attach Configuration";
@@ -101,7 +101,7 @@
 "Toggle Play" = "Toggle Play";
 
 "Manage Codex hooks, bridge health, and the local runtime actions that feed this module." = "Manage Codex hooks, bridge health, and the local runtime actions that feed this module.";
-"Choose how Fantastic Island connects to Clash, then tune runtime paths and operational actions." = "Choose how Fantastic Island connects to Clash, then tune runtime paths and operational actions.";
+"Choose how Fantastic Island connects to ClashX Meta, then tune runtime paths and operational actions." = "Choose how Fantastic Island connects to ClashX Meta, then tune runtime paths and operational actions.";
 "Review the current media integration state and keep transport controls close at hand." = "Review the current media integration state and keep transport controls close at hand.";
 
 "Disconnected" = "Disconnected";
@@ -124,8 +124,8 @@
 "直连" = "Direct";
 "测速中 · %@ · %@" = "Testing · %@ · %@";
 "失败 · %@ · %@ · %@" = "Failed · %@ · %@ · %@";
-"连接已有 Clash API" = "Connect to an existing Clash API";
-"由应用托管 Clash 内核" = "Managed by app runtime";
+"连接已有 ClashX Meta API" = "Connect to an existing ClashX Meta API";
+"由应用托管 ClashX Meta 内核" = "Managed by app runtime";
 "当前没有可测速节点" = "No proxy available for latency testing.";
 
 "Idle" = "Idle";
@@ -168,7 +168,7 @@
 "Connected · resolve failed" = "Connected · resolve failed";
 "Connected · %d threads" = "Connected · %d threads";
 "Managed" = "Managed";
-"Connect to an already running local Clash-compatible API." = "Connect to an already running local Clash-compatible API.";
+"Connect to an already running local ClashX Meta-compatible API." = "Connect to an already running local ClashX Meta-compatible API.";
 "Use our own config directory and launch a local core ourselves." = "Use our own config directory and launch a local core ourselves.";
 "Not found" = "Not found";
 "Not configured" = "Not configured";
@@ -178,14 +178,14 @@
 "Synced" = "Synced";
 "Error" = "Error";
 "The managed runtime will keep using its local config file until you update the subscription or start the core." = "The managed runtime will keep using its local config file until you update the subscription or start the core.";
-"Set a Clash or Mihomo YAML subscription URL if you want Fantastic Island to refresh the managed config itself." = "Set a Clash or Mihomo YAML subscription URL if you want Fantastic Island to refresh the managed config itself.";
+"Set a ClashX Meta or Mihomo YAML subscription URL if you want Fantastic Island to refresh the managed config itself." = "Set a ClashX Meta or Mihomo YAML subscription URL if you want Fantastic Island to refresh the managed config itself.";
 "Fetching the remote YAML subscription and rewriting the managed config file." = "Fetching the remote YAML subscription and rewriting the managed config file.";
 "Last updated %@. The managed runtime can now launch or reload from the refreshed local config." = "Last updated %@. The managed runtime can now launch or reload from the refreshed local config.";
 "Subscription" = "Subscription";
 "Subscription URL" = "Subscription URL";
 "Update Subscription" = "Update Subscription";
 "Updating..." = "Updating...";
-"Fantastic Island can pull a Clash or Mihomo YAML subscription into the managed config file above, then start or reload the local core without any other Clash client." = "Fantastic Island can pull a Clash or Mihomo YAML subscription into the managed config file above, then start or reload the local core without any other Clash client.";
+"Fantastic Island can pull a ClashX Meta or Mihomo YAML subscription into the managed config file above, then start or reload the local core without any other ClashX Meta client." = "Fantastic Island can pull a ClashX Meta or Mihomo YAML subscription into the managed config file above, then start or reload the local core without any other ClashX Meta client.";
 "If your provider returns a non-YAML subscription format, convert it upstream first." = "If your provider returns a non-YAML subscription format, convert it upstream first.";
 "Reinstall" = "Reinstall";
 "Cancel" = "Cancel";
@@ -199,7 +199,7 @@
 "Approval backend unavailable, fail-open." = "Approval backend unavailable, fail-open.";
 "Question backend unavailable, fail-open." = "Question backend unavailable, fail-open.";
 "Later" = "Later";
-"No local Clash port is available for system proxy control." = "No local Clash port is available for system proxy control.";
+"No local ClashX Meta port is available for system proxy control." = "No local ClashX Meta port is available for system proxy control.";
 "Mode switch failed: %@" = "Mode switch failed: %@";
 "Subscriptions are only supported in managed mode." = "Subscriptions are only supported in managed mode.";
 "Set a subscription URL in Managed Configuration first." = "Set a subscription URL in Managed Configuration first.";
@@ -219,12 +219,12 @@
 "HTTP %d" = "HTTP %d";
 "Invalid API response" = "Invalid API response";
 "The subscription returned an empty response." = "The subscription returned an empty response.";
-"The subscription must return a Clash or Mihomo YAML config. Convert non-YAML subscriptions upstream first." = "The subscription must return a Clash or Mihomo YAML config. Convert non-YAML subscriptions upstream first.";
+"The subscription must return a ClashX Meta or Mihomo YAML config. Convert non-YAML subscriptions upstream first." = "The subscription must return a ClashX Meta or Mihomo YAML config. Convert non-YAML subscriptions upstream first.";
 "Built-in" = "Built-in";
 "Use Fantastic Island's managed Mihomo runtime workflow and profile library." = "Use Fantastic Island's managed Mihomo runtime workflow and profile library.";
 "Local YAML" = "Local YAML";
 "Starter profile created by Fantastic Island." = "Starter profile created by Fantastic Island.";
-"Connect to an existing Clash API." = "Connect to an existing Clash API.";
+"Connect to an existing ClashX Meta API." = "Connect to an existing ClashX Meta API.";
 "Use Fantastic Island's built-in Mihomo runtime." = "Use Fantastic Island's built-in Mihomo runtime.";
 "No latency-testable node is available right now." = "No latency-testable node is available right now.";
 "Create or import a built-in profile first." = "Create or import a built-in profile first.";
@@ -245,8 +245,8 @@
 "Bundled dashboard assets are incomplete." = "Bundled dashboard assets are incomplete.";
 "The selected built-in profile has no local snapshot yet." = "The selected built-in profile has no local snapshot yet.";
 "The original YAML file is no longer available for re-import." = "The original YAML file is no longer available for re-import.";
-"Clash Advanced Panel" = "Clash Advanced Panel";
-"Choose whether Fantastic Island attaches to an existing Clash API or uses its managed Mihomo workflow." = "Choose whether Fantastic Island attaches to an existing Clash API or uses its managed Mihomo workflow.";
+"ClashX Meta Advanced Panel" = "ClashX Meta Advanced Panel";
+"Choose whether Fantastic Island attaches to an existing ClashX Meta API or uses its managed Mihomo workflow." = "Choose whether Fantastic Island attaches to an existing ClashX Meta API or uses its managed Mihomo workflow.";
 "Built-in Profiles" = "Built-in Profiles";
 "Profile Library" = "Profile Library";
 "Fantastic Island stores built-in YAML profiles in its own library, then regenerates the local Mihomo runtime config from the selected profile." = "Fantastic Island stores built-in YAML profiles in its own library, then regenerates the local Mihomo runtime config from the selected profile.";
@@ -300,22 +300,22 @@
 "Refresh the remote YAML before Fantastic Island switches to this subscription." = "Refresh the remote YAML before Fantastic Island switches to this subscription.";
 "Detect Mode" = "Detect Mode";
 "Managed Mode" = "Managed Mode";
-"Detection mode reads an existing Clash client through its local API and config path. Fantastic Island does not start or manage the runtime in this mode." = "Detection mode reads an existing Clash client through its local API and config path. Fantastic Island does not start or manage the runtime in this mode.";
+"Detection mode reads an existing ClashX Meta client through its local API and config path. Fantastic Island does not start or manage the runtime in this mode." = "Detection mode reads an existing ClashX Meta client through its local API and config path. Fantastic Island does not start or manage the runtime in this mode.";
 "Managed mode keeps YAML profiles in Fantastic Island, syncs subscriptions, and starts the managed Mihomo runtime when assets are available." = "Managed mode keeps YAML profiles in Fantastic Island, syncs subscriptions, and starts the managed Mihomo runtime when assets are available.";
 "Connection Mode" = "Connection Mode";
-"Choose whether Fantastic Island should inspect an existing Clash client or manage its own Mihomo runtime." = "Choose whether Fantastic Island should inspect an existing Clash client or manage its own Mihomo runtime.";
+"Choose whether Fantastic Island should inspect an existing ClashX Meta client or manage its own Mihomo runtime." = "Choose whether Fantastic Island should inspect an existing ClashX Meta client or manage its own Mihomo runtime.";
 "Connection" = "Connection";
 "Config" = "Config";
 "Not set" = "Not set";
 "No profile" = "No profile";
-"Detection mode never starts Fantastic Island's managed Mihomo workflow. Use it when you already have another Clash client running and only want Fantastic Island to inspect or control that client." = "Detection mode never starts Fantastic Island's managed Mihomo workflow. Use it when you already have another Clash client running and only want Fantastic Island to inspect or control that client.";
+"Detection mode never starts Fantastic Island's managed Mihomo workflow. Use it when you already have another ClashX Meta client running and only want Fantastic Island to inspect or control that client." = "Detection mode never starts Fantastic Island's managed Mihomo workflow. Use it when you already have another ClashX Meta client running and only want Fantastic Island to inspect or control that client.";
 "Managed mode uses Fantastic Island's profile library and managed Mihomo workflow. Use it when you want Fantastic Island to manage subscriptions and runtime behavior itself." = "Managed mode uses Fantastic Island's profile library and managed Mihomo workflow. Use it when you want Fantastic Island to manage subscriptions and runtime behavior itself.";
 "Detection Settings" = "Detection Settings";
-"Point Fantastic Island at the Clash API and optional config file from the client you already use. Fantastic Island only reads and controls that existing runtime." = "Point Fantastic Island at the Clash API and optional config file from the client you already use. Fantastic Island only reads and controls that existing runtime.";
+"Point Fantastic Island at the ClashX Meta API and optional config file from the client you already use. Fantastic Island only reads and controls that existing runtime." = "Point Fantastic Island at the ClashX Meta API and optional config file from the client you already use. Fantastic Island only reads and controls that existing runtime.";
 "Managed Profiles" = "Managed Profiles";
 "Add, rename, delete, and switch the YAML profiles that Fantastic Island can run in managed mode." = "Add, rename, delete, and switch the YAML profiles that Fantastic Island can run in managed mode.";
 "Resolved Config File" = "Resolved Config File";
-"Leave Config File empty if you want Fantastic Island to try to discover a local Mihomo or Clash YAML file automatically." = "Leave Config File empty if you want Fantastic Island to try to discover a local Mihomo or Clash YAML file automatically.";
+"Leave Config File empty if you want Fantastic Island to try to discover a local Mihomo or ClashX Meta YAML file automatically." = "Leave Config File empty if you want Fantastic Island to try to discover a local Mihomo or ClashX Meta YAML file automatically.";
 "Detection Tools" = "Detection Tools";
 "Refresh the detection result or open the API config file that Fantastic Island is currently using." = "Refresh the detection result or open the API config file that Fantastic Island is currently using.";
 "Managed Tools" = "Managed Tools";
@@ -323,7 +323,7 @@
 "Recent Mihomo runtime output captured while Fantastic Island is managing the built-in runtime." = "Recent Mihomo runtime output captured while Fantastic Island is managing the built-in runtime.";
 "Switch between detection mode and managed mode, then focus on the settings and actions relevant to the mode you picked." = "Switch between detection mode and managed mode, then focus on the settings and actions relevant to the mode you picked.";
 "Network Ports" = "Network Ports";
-"Fantastic Island only reads the current HTTP, Socks5, and mixed proxy ports from the Clash client you already use." = "Fantastic Island only reads the current HTTP, Socks5, and mixed proxy ports from the Clash client you already use.";
+"Fantastic Island only reads the current HTTP, Socks5, and mixed proxy ports from the ClashX Meta client you already use." = "Fantastic Island only reads the current HTTP, Socks5, and mixed proxy ports from the ClashX Meta client you already use.";
 "Managed mode keeps the proxy ports inside Fantastic Island's runtime config so you can align Mihomo with the rest of your network setup." = "Managed mode keeps the proxy ports inside Fantastic Island's runtime config so you can align Mihomo with the rest of your network setup.";
 "Advanced Capabilities" = "Advanced Capabilities";
 "Inspect logs, rules, and connection overview from the detected client without leaving Fantastic Island." = "Inspect logs, rules, and connection overview from the detected client without leaving Fantastic Island.";
@@ -334,7 +334,7 @@
 "HTTP Proxy Port" = "HTTP Proxy Port";
 "Socks5 Proxy Port" = "Socks5 Proxy Port";
 "Mixed Proxy Port" = "Mixed Proxy Port";
-"Detection mode does not rewrite ports. Change them in the Clash client you already run, then let Fantastic Island read the updated values." = "Detection mode does not rewrite ports. Change them in the Clash client you already run, then let Fantastic Island read the updated values.";
+"Detection mode does not rewrite ports. Change them in the ClashX Meta client you already run, then let Fantastic Island read the updated values." = "Detection mode does not rewrite ports. Change them in the ClashX Meta client you already run, then let Fantastic Island read the updated values.";
 "Ports must be empty or use a value between 1 and 65535." = "Ports must be empty or use a value between 1 and 65535.";
 "Leave a field empty if you want Fantastic Island to fall back to the generated runtime defaults for that port." = "Leave a field empty if you want Fantastic Island to fall back to the generated runtime defaults for that port.";
 "Apply Ports" = "Apply Ports";
@@ -344,11 +344,11 @@
 "Log stream unavailable" = "Log stream unavailable";
 "Waiting for log output" = "Waiting for log output";
 "No log entries yet" = "No log entries yet";
-"Fantastic Island will start showing lines here as soon as the current Clash runtime emits them." = "Fantastic Island will start showing lines here as soon as the current Clash runtime emits them.";
-"Read the current Clash rule list without leaving Fantastic Island." = "Read the current Clash rule list without leaving Fantastic Island.";
+"Fantastic Island will start showing lines here as soon as the current ClashX Meta runtime emits them." = "Fantastic Island will start showing lines here as soon as the current ClashX Meta runtime emits them.";
+"Read the current ClashX Meta rule list without leaving Fantastic Island." = "Read the current ClashX Meta rule list without leaving Fantastic Island.";
 "Search Rules" = "Search Rules";
 "Loading rules" = "Loading rules";
-"Fantastic Island is reading the active rule set from the current Clash API." = "Fantastic Island is reading the active rule set from the current Clash API.";
+"Fantastic Island is reading the active rule set from the current ClashX Meta API." = "Fantastic Island is reading the active rule set from the current ClashX Meta API.";
 "Rules unavailable" = "Rules unavailable";
 "No matching rules" = "No matching rules";
 "The current API did not return a readable rule list." = "The current API did not return a readable rule list.";
@@ -361,16 +361,16 @@
 "Total Download" = "Total Download";
 "Memory Usage" = "Memory Usage";
 "Refreshing connection overview" = "Refreshing connection overview";
-"Fantastic Island is reading the latest connection summary from the current Clash API." = "Fantastic Island is reading the latest connection summary from the current Clash API.";
+"Fantastic Island is reading the latest connection summary from the current ClashX Meta API." = "Fantastic Island is reading the latest connection summary from the current ClashX Meta API.";
 "Connection overview unavailable" = "Connection overview unavailable";
-"Upload and download rate continue to come from Fantastic Island's regular Clash poller. This sheet keeps the heavier totals and memory summary in one place." = "Upload and download rate continue to come from Fantastic Island's regular Clash poller. This sheet keeps the heavier totals and memory summary in one place.";
-"Paste a secure https:// Clash or Mihomo YAML subscription link. The name is optional." = "Paste a Clash or Mihomo YAML subscription link using http:// or https://. The name is optional.";
+"Upload and download rate continue to come from Fantastic Island's regular ClashX Meta poller. This sheet keeps the heavier totals and memory summary in one place." = "Upload and download rate continue to come from Fantastic Island's regular ClashX Meta poller. This sheet keeps the heavier totals and memory summary in one place.";
+"Paste a secure https:// ClashX Meta or Mihomo YAML subscription link. The name is optional." = "Paste a ClashX Meta or Mihomo YAML subscription link using http:// or https://. The name is optional.";
 "Stream Mihomo logs directly inside Fantastic Island. Filtering stays local to this sheet." = "Stream Mihomo logs directly inside Fantastic Island. Filtering stays local to this sheet.";
-"Fantastic Island will start showing lines here as soon as the current Clash runtime emits them." = "Fantastic Island will start showing lines here as soon as the current Clash runtime emits them.";
-"Read the current Clash rule list without leaving Fantastic Island." = "Read the current Clash rule list without leaving Fantastic Island.";
+"Fantastic Island will start showing lines here as soon as the current ClashX Meta runtime emits them." = "Fantastic Island will start showing lines here as soon as the current ClashX Meta runtime emits them.";
+"Read the current ClashX Meta rule list without leaving Fantastic Island." = "Read the current ClashX Meta rule list without leaving Fantastic Island.";
 "DOMAIN-SUFFIX, MATCH, Proxy, ..." = "DOMAIN-SUFFIX, MATCH, Proxy, ...";
-"Fantastic Island is reading the active rule set from the current Clash API." = "Fantastic Island is reading the active rule set from the current Clash API.";
+"Fantastic Island is reading the active rule set from the current ClashX Meta API." = "Fantastic Island is reading the active rule set from the current ClashX Meta API.";
 "The current API did not return a readable rule list." = "The current API did not return a readable rule list.";
 "Try a different keyword or clear the search field." = "Try a different keyword or clear the search field.";
 "Keep a lightweight overview of live connection pressure, throughput, and memory." = "Keep a lightweight overview of live connection pressure, throughput, and memory.";
-"Fantastic Island is reading the latest connection summary from the current Clash API." = "Fantastic Island is reading the latest connection summary from the current Clash API.";
+"Fantastic Island is reading the latest connection summary from the current ClashX Meta API." = "Fantastic Island is reading the latest connection summary from the current ClashX Meta API.";

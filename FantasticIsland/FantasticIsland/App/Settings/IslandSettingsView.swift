@@ -42,21 +42,11 @@ struct IslandSettingsView: View {
         .preferredColorScheme(.dark)
         .onAppear {
             normalizeSelection()
-            syncClashManagedPortDrafts()
         }
         .onChange(of: model.enabledModuleIDs) { _, _ in
             normalizeSelection()
         }
-        .onChange(of: model.clashModule.moduleMode) { _, _ in
-            syncClashManagedPortDrafts()
-        }
-        .onChange(of: model.clashModule.resolvedPortSnapshot) { _, _ in
-            syncClashManagedPortDrafts()
-        }
         .environment(\.locale, model.resolvedLocale)
-        .sheet(item: $clashPresentedSheet) { sheet in
-            clashSheetView(for: sheet)
-        }
     }
 
     private var sidebar: some View {
@@ -347,8 +337,8 @@ struct IslandSettingsView: View {
                 switch module.id {
                 case CodexModuleModel.moduleID:
                     codexFanModulePage
-                case ClashModuleModel.moduleID:
-                    clashModulePage
+                case ClaudeCodeModuleModel.moduleID:
+                    claudeCodeModulePage
                 case PlayerModuleModel.moduleID:
                     playerModulePage
                 default:
@@ -435,6 +425,66 @@ struct IslandSettingsView: View {
                             .foregroundStyle(.orange.opacity(0.88))
                             .fixedSize(horizontal: false, vertical: true)
                     }
+                }
+            }
+        }
+    }
+
+    private var claudeCodeModulePage: some View {
+        VStack(alignment: .leading, spacing: 22) {
+            SettingsCard {
+                VStack(alignment: .leading, spacing: 16) {
+                    HStack(alignment: .top, spacing: 16) {
+                        SettingsSectionHeader(
+                            title: "Runtime Status",
+                            detail: "Monitor whether the Claude Code CLI is active and keep its local configuration close at hand."
+                        )
+
+                        Spacer(minLength: 0)
+
+                        SecondaryActionButton(title: "Refresh Status") {
+                            model.claudeCodeModule.refreshModuleStatus()
+                        }
+                    }
+
+                    CodexStatusPanel(
+                        title: "Process",
+                        detail: model.claudeCodeModule.statusDetail,
+                        badgeText: model.claudeCodeModule.statusTitle,
+                        badgeTint: model.claudeCodeModule.isClaudeRunning
+                            ? Color(red: 0.31, green: 0.86, blue: 0.48)
+                            : Color.white.opacity(0.42)
+                    )
+
+                    AdaptiveActionGroup {
+                        SecondaryActionButton(title: "Open ~/.claude") {
+                            model.claudeCodeModule.openClaudeDirectory()
+                        }
+                    }
+                }
+            }
+
+            SettingsCard {
+                VStack(alignment: .leading, spacing: 14) {
+                    SettingsSectionHeader(
+                        title: "CLI",
+                        detail: "Fantastic Island checks the local claude command and mirrors the same lightweight module controls used by Codex."
+                    )
+
+                    SettingsInfoBlock(
+                        title: "Command",
+                        value: "claude"
+                    )
+
+                    SettingsInfoBlock(
+                        title: "Install Status",
+                        value: model.claudeCodeModule.cliStatusText
+                    )
+
+                    SettingsInfoBlock(
+                        title: "Config Directory",
+                        value: model.claudeCodeModule.claudeDirectoryPath
+                    )
                 }
             }
         }
@@ -540,7 +590,7 @@ struct IslandSettingsView: View {
                                 valueColor: .white.opacity(0.76)
                             )
                         } else {
-                            Text("Leave Config File empty if you want Fantastic Island to try to discover a local Mihomo or Clash YAML file automatically.")
+                            Text("Leave Config File empty if you want Fantastic Island to try to discover a local Mihomo or ClashX Meta YAML file automatically.")
                                 .font(.system(size: 12, weight: .medium))
                                 .foregroundStyle(.white.opacity(0.5))
                                 .fixedSize(horizontal: false, vertical: true)
@@ -725,7 +775,7 @@ struct IslandSettingsView: View {
                         } else if model.clashModule.proxyProviders.isEmpty && model.clashModule.ruleProviders.isEmpty {
                             SettingsEmptyState(
                                 title: "No providers exposed yet",
-                                detail: "Fantastic Island will show provider controls here when the active Clash profile defines proxy-providers or rule-providers."
+                                detail: "Fantastic Island will show provider controls here when the active ClashX Meta profile defines proxy-providers or rule-providers."
                             )
                         } else {
                             if !model.clashModule.proxyProviders.isEmpty {
@@ -994,7 +1044,7 @@ struct IslandSettingsView: View {
 
     private var clashModeHintText: String {
         if model.clashModule.moduleMode == .attach {
-            return "Detection mode never starts Fantastic Island's managed Mihomo workflow. Use it when you already have another Clash client running and only want Fantastic Island to inspect or control that client."
+            return "Detection mode never starts Fantastic Island's managed Mihomo workflow. Use it when you already have another ClashX Meta client running and only want Fantastic Island to inspect or control that client."
         }
 
         return "Managed mode uses Fantastic Island's profile library and managed Mihomo workflow. Use it when you want Fantastic Island to manage subscriptions and runtime behavior itself."
@@ -1006,7 +1056,7 @@ struct IslandSettingsView: View {
 
     private var clashConfigurationSectionDetail: String {
         if model.clashModule.moduleMode == .attach {
-            return "Point Fantastic Island at the Clash API and optional config file from the client you already use. Fantastic Island only reads and controls that existing runtime."
+            return "Point Fantastic Island at the ClashX Meta API and optional config file from the client you already use. Fantastic Island only reads and controls that existing runtime."
         }
 
         return "Add, rename, delete, and switch the YAML profiles that Fantastic Island can run in managed mode."
@@ -1014,7 +1064,7 @@ struct IslandSettingsView: View {
 
     private var clashNetworkPortsDetail: String {
         if model.clashModule.moduleMode == .attach {
-            return "Fantastic Island only reads the current HTTP, Socks5, and mixed proxy ports from the Clash client you already use."
+            return "Fantastic Island only reads the current HTTP, Socks5, and mixed proxy ports from the ClashX Meta client you already use."
         }
 
         return "Managed mode keeps the proxy ports inside Fantastic Island's runtime config so you can align Mihomo with the rest of your network setup."
@@ -1218,8 +1268,8 @@ struct IslandSettingsView: View {
         switch moduleID {
         case CodexModuleModel.moduleID:
             return "Manage Codex hooks, bridge health, and the local runtime actions that feed this module."
-        case ClashModuleModel.moduleID:
-            return "Switch between detection mode and managed mode, then focus on the settings and actions relevant to the mode you picked."
+        case ClaudeCodeModuleModel.moduleID:
+            return "Monitor Claude Code CLI status and keep its local configuration close at hand."
         case PlayerModuleModel.moduleID:
             return "Review the current media integration state and keep transport controls close at hand."
         default:
@@ -1244,7 +1294,7 @@ struct IslandSettingsView: View {
                 value: model.clashModule.resolvedMixedPortText
             )
 
-            Text("Detection mode does not rewrite ports. Change them in the Clash client you already run, then let Fantastic Island read the updated values.")
+            Text("Detection mode does not rewrite ports. Change them in the ClashX Meta client you already run, then let Fantastic Island read the updated values.")
                 .font(.system(size: 12, weight: .medium))
                 .foregroundStyle(.white.opacity(0.5))
                 .fixedSize(horizontal: false, vertical: true)
@@ -1805,7 +1855,7 @@ private struct BuiltInSubscriptionComposer: View {
         VStack(alignment: .leading, spacing: 14) {
             SettingsSectionHeader(
                 title: "Add Subscription",
-                detail: "Paste a Clash or Mihomo YAML subscription link using http:// or https://. The name is optional."
+                detail: "Paste a ClashX Meta or Mihomo YAML subscription link using http:// or https://. The name is optional."
             )
 
             SettingsField(
@@ -2051,7 +2101,7 @@ private struct ClashLogsSheet: View {
                 } else if filteredEntries.isEmpty {
                     SettingsEmptyState(
                         title: module.isStreamingLogs ? "Waiting for log output" : "No log entries yet",
-                        detail: "Fantastic Island will start showing lines here as soon as the current Clash runtime emits them."
+                        detail: "Fantastic Island will start showing lines here as soon as the current ClashX Meta runtime emits them."
                     )
                 } else {
                     ScrollView {
@@ -2124,7 +2174,7 @@ private struct ClashRulesSheet: View {
     var body: some View {
         ClashSettingsSheetContainer(
             title: "Rules",
-            detail: "Read the current Clash rule list without leaving Fantastic Island."
+            detail: "Read the current ClashX Meta rule list without leaving Fantastic Island."
             ,
             width: 760,
             height: 560
@@ -2139,7 +2189,7 @@ private struct ClashRulesSheet: View {
                 if module.isLoadingRules {
                     SettingsEmptyState(
                         title: "Loading rules",
-                        detail: "Fantastic Island is reading the active rule set from the current Clash API."
+                        detail: "Fantastic Island is reading the active rule set from the current ClashX Meta API."
                     )
                 } else if let error = module.rulesLoadError, !error.isEmpty {
                     SettingsEmptyState(
@@ -2231,7 +2281,7 @@ private struct ClashConnectionsSheet: View {
                 if module.isLoadingConnectionOverview {
                     SettingsEmptyState(
                         title: "Refreshing connection overview",
-                        detail: "Fantastic Island is reading the latest connection summary from the current Clash API."
+                        detail: "Fantastic Island is reading the latest connection summary from the current ClashX Meta API."
                     )
                 } else if let error = module.connectionOverviewError, !error.isEmpty {
                     SettingsEmptyState(
@@ -2239,7 +2289,7 @@ private struct ClashConnectionsSheet: View {
                         detail: error
                     )
                 } else {
-                    Text("Upload and download rate continue to come from Fantastic Island's regular Clash poller. This sheet keeps the heavier totals and memory summary in one place.")
+                    Text("Upload and download rate continue to come from Fantastic Island's regular ClashX Meta poller. This sheet keeps the heavier totals and memory summary in one place.")
                         .font(.system(size: 12, weight: .medium))
                         .foregroundStyle(.white.opacity(0.5))
                         .fixedSize(horizontal: false, vertical: true)

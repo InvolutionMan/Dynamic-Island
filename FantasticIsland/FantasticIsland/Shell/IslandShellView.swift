@@ -444,6 +444,7 @@ struct IslandShellView: View {
         IslandClosedHeaderView(
             state: IslandShellClosedHeaderRenderState(
                 fanAnimationState: model.fanAnimationState,
+                computerFanTelemetry: model.computerFanTelemetry,
                 compactModules: model.visibleCompactModules
             ),
             notchExclusionWidth: closedContentNotchExclusionWidth

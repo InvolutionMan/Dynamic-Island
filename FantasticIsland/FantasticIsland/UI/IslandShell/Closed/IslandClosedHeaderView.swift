@@ -15,6 +15,8 @@ struct IslandClosedHeaderView: View {
                 HStack(spacing: 0) {
                     HStack(spacing: 0) {
                         IslandFanIconView(animationState: state.fanAnimationState)
+                        fanTelemetryView
+                            .padding(.leading, CodexIslandChromeMetrics.closedModuleContentSpacing)
                     }
                     .padding(.horizontal, CodexIslandChromeMetrics.closedHorizontalPadding)
                     .frame(maxWidth: .infinity, alignment: .leading)
@@ -29,6 +31,8 @@ struct IslandClosedHeaderView: View {
             } else {
                 HStack(spacing: 0) {
                     IslandFanIconView(animationState: state.fanAnimationState)
+                    fanTelemetryView
+                        .padding(.leading, CodexIslandChromeMetrics.closedModuleContentSpacing)
 
                     Spacer(minLength: CodexIslandChromeMetrics.closedFanModuleSpacing)
 
@@ -41,6 +45,23 @@ struct IslandClosedHeaderView: View {
                 .padding(.horizontal, CodexIslandChromeMetrics.closedHorizontalPadding)
             }
         }
+    }
+
+    private var fanTelemetryView: some View {
+        VStack(alignment: .leading, spacing: 1) {
+            Text(state.computerFanTelemetry.fanRPMText)
+                .foregroundStyle(.white.opacity(0.82))
+
+            Text(state.computerFanTelemetry.averageCPUTemperatureText)
+                .foregroundStyle(.white.opacity(0.58))
+        }
+        .font(.system(size: 7.5, weight: .bold, design: .monospaced))
+        .lineLimit(1)
+        .minimumScaleFactor(0.78)
+        .frame(width: 70, alignment: .leading)
+        .fixedSize(horizontal: false, vertical: true)
+        .accessibilityElement(children: .ignore)
+        .accessibilityLabel("Computer fan \(state.computerFanTelemetry.accessibilityText)")
     }
 
     @ViewBuilder

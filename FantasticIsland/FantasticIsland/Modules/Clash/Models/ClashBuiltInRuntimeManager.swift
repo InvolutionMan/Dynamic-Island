@@ -454,7 +454,7 @@ final class ClashBuiltInRuntimeManager {
             do {
                 try installBundledRuntimeFile(from: plan.geoIPSourceURL, to: plan.runtimeDirectoryURL.appendingPathComponent("geoip.metadb"))
                 try installBundledRuntimeFile(from: plan.geoSiteSourceURL, to: plan.runtimeDirectoryURL.appendingPathComponent("geosite.dat"))
-                logMessages.append("Installed bundled Clash geodata \(plan.expectedState.geoDataVersion)")
+                logMessages.append("Installed bundled ClashX Meta geodata \(plan.expectedState.geoDataVersion)")
             } catch {
                 throw ClashBuiltInRuntimeError.assetInstallStepFailed("Geodata", error.localizedDescription)
             }

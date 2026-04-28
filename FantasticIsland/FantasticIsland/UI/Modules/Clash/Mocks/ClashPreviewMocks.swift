@@ -22,6 +22,6 @@ enum ClashPreviewMocks {
     static let emptyCard = ClashPreviewCardModel(
         id: "empty",
         title: "No proxy groups",
-        detail: "Use the managed runtime or connect an attach-mode Clash API to populate node groups."
+        detail: "Use the managed runtime or connect an attach-mode ClashX Meta API to populate node groups."
     )
 }

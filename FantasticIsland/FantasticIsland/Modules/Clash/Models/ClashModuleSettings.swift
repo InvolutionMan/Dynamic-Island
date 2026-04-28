@@ -268,7 +268,9 @@ enum ClashModuleSettings {
             return .managed
         }
 
-        if hasLegacyAttachConfiguration || UserDefaults.standard.persistentDomain(forName: "com.west2online.ClashXPro") != nil {
+        if hasLegacyAttachConfiguration
+            || UserDefaults.standard.persistentDomain(forName: "com.metacubex.ClashX.meta") != nil
+            || UserDefaults.standard.persistentDomain(forName: "com.west2online.ClashXPro") != nil {
             return .attach
         }
 

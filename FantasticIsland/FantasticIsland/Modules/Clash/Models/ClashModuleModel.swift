@@ -11,7 +11,7 @@ final class ClashModuleModel: ObservableObject, IslandModule {
     private static let managedTunProbeURL = "https://speed.cloudflare.com/__down?bytes=262144"
 
     let id = ClashModuleModel.moduleID
-    let title = "Clash"
+    let title = "ClashX Meta"
     let symbolName = "lock.shield"
     let iconAssetName: String? = "clashicon"
 
@@ -75,7 +75,7 @@ final class ClashModuleModel: ObservableObject, IslandModule {
                 id: "\(id).summary.status",
                 moduleID: id,
                 title: "Status",
-                text: "CLASH \(status.shortText)",
+                text: "META \(status.shortText)",
                 isEnabledByDefault: false
             ),
             CollapsedSummaryItem(
@@ -208,7 +208,7 @@ final class ClashModuleModel: ObservableObject, IslandModule {
         case .attached, .runningOwned, .launching:
             return "↑ \(uploadRateText) ↓ \(downloadRateText)"
         case .disconnected, .failed:
-            return "CLASH \(status.shortText)"
+            return "META \(status.shortText)"
         }
     }
 
@@ -624,7 +624,7 @@ final class ClashModuleModel: ObservableObject, IslandModule {
         let alert = NSAlert()
         alert.messageText = NSLocalizedString("Add Built-in Subscription", comment: "")
         alert.informativeText = NSLocalizedString(
-            "Built-in profiles accept Clash or Mihomo YAML subscriptions over http:// or https://.",
+            "Built-in profiles accept ClashX Meta or Mihomo YAML subscriptions over http:// or https://.",
             comment: ""
         )
         alert.addButton(withTitle: NSLocalizedString("Add Profile", comment: ""))
@@ -2247,7 +2247,12 @@ final class ClashModuleModel: ObservableObject, IslandModule {
         let fileManager = FileManager.default
         let homeURL = fileManager.homeDirectoryForCurrentUser
         let mihomoURL = homeURL.appendingPathComponent(".config/mihomo", isDirectory: true)
+        let clashMetaURL = homeURL.appendingPathComponent(".config/clash.meta", isDirectory: true)
         let clashURL = homeURL.appendingPathComponent(".config/clash", isDirectory: true)
+
+        if let clashMetaProfile = latestYAMLFile(in: clashMetaURL) {
+            return clashMetaProfile.path
+        }
 
         if let mihomoProfile = latestYAMLFile(in: mihomoURL.appendingPathComponent("profiles", isDirectory: true)) {
             return mihomoProfile.path
