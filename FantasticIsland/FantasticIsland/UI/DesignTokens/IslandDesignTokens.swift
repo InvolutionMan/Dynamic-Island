@@ -32,6 +32,7 @@ struct IslandDesignTokens: Codable, Equatable {
         var openedSurfaceBottomInset: Double = 0
         var openedSurfaceContentHorizontalInset: Double = 22
         var closedHoverScale: Double = 1.028
+        var closedRestingDotSize: Double = 26
         var closedHorizontalPadding: Double = 14
         var closedFanModuleSpacing: Double = 16
         var closedModuleSpacing: Double = 26
@@ -168,6 +169,7 @@ struct IslandDesignTokens: Codable, Equatable {
                 openedSurfaceBottomInset: Double(CodexIslandChromeMetrics.defaultOpenedSurfaceBottomInset),
                 openedSurfaceContentHorizontalInset: Double(CodexIslandChromeMetrics.defaultOpenedSurfaceContentHorizontalInset),
                 closedHoverScale: Double(CodexIslandChromeMetrics.defaultClosedHoverScale),
+                closedRestingDotSize: Double(CodexIslandChromeMetrics.defaultClosedRestingDotSize),
                 closedHorizontalPadding: Double(CodexIslandChromeMetrics.defaultClosedHorizontalPadding),
                 closedFanModuleSpacing: Double(CodexIslandChromeMetrics.defaultClosedFanModuleSpacing),
                 closedModuleSpacing: Double(CodexIslandChromeMetrics.defaultClosedModuleSpacing),

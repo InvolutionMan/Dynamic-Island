@@ -8,11 +8,13 @@
 
 /* Begin PBXBuildFile section */
 		40F984CC2F8F50B1009E4658 /* FantasticIsland.icon in Resources */ = {isa = PBXBuildFile; fileRef = 40F984CB2F8F50B1009E4658 /* FantasticIsland.icon */; };
+		CC62533E2FA099BC0043641D /* ChatGPT Image Apr 28, 2026, 03_30_50 PM.png in Resources */ = {isa = PBXBuildFile; fileRef = CC62533D2FA099BB0043641D /* ChatGPT Image Apr 28, 2026, 03_30_50 PM.png */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
 		40F984CB2F8F50B1009E4658 /* FantasticIsland.icon */ = {isa = PBXFileReference; lastKnownFileType = folder.iconcomposer.icon; path = FantasticIsland.icon; sourceTree = "<group>"; };
-		40F986962F966F0B009E4658 /* FantasticIsland.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = FantasticIsland.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		CC62533D2FA099BB0043641D /* ChatGPT Image Apr 28, 2026, 03_30_50 PM.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "ChatGPT Image Apr 28, 2026, 03_30_50 PM.png"; sourceTree = "<group>"; };
+		CC6253412FA0A87D0043641D /* FantasticIsland.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = FantasticIsland.app; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
 
 /* Begin PBXFileSystemSynchronizedRootGroup section */
@@ -39,7 +41,8 @@
 			children = (
 				403C20F52F8CAF6100C9A86C /* FantasticIsland */,
 				40F984CB2F8F50B1009E4658 /* FantasticIsland.icon */,
-				40F986962F966F0B009E4658 /* FantasticIsland.app */,
+				CC62533D2FA099BB0043641D /* ChatGPT Image Apr 28, 2026, 03_30_50 PM.png */,
+				CC6253412FA0A87D0043641D /* FantasticIsland.app */,
 			);
 			sourceTree = "<group>";
 		};
@@ -65,7 +68,7 @@
 			packageProductDependencies = (
 			);
 			productName = FantasticIsland;
-			productReference = 40F986962F966F0B009E4658 /* FantasticIsland.app */;
+			productReference = CC6253412FA0A87D0043641D /* FantasticIsland.app */;
 			productType = "com.apple.product-type.application";
 		};
 /* End PBXNativeTarget section */
@@ -109,6 +112,7 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				CC62533E2FA099BC0043641D /* ChatGPT Image Apr 28, 2026, 03_30_50 PM.png in Resources */,
 				40F984CC2F8F50B1009E4658 /* FantasticIsland.icon in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -251,13 +255,15 @@
 		403C211A2F8CAF6300C9A86C /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
-				ASSETCATALOG_COMPILER_APPICON_NAME = FantasticIsland;
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				ASSETCATALOG_COMPILER_INCLUDE_ALL_APPICON_ASSETS = NO;
 				CODE_SIGN_ENTITLEMENTS = Support/FantasticIsland.entitlements;
 				CODE_SIGN_STYLE = Automatic;
 				COMBINE_HIDPI_IMAGES = YES;
 				CURRENT_PROJECT_VERSION = 1;
 				DEAD_CODE_STRIPPING = YES;
+				DEVELOPMENT_TEAM = S3A3QT47L6;
 				ENABLE_APP_SANDBOX = NO;
 				ENABLE_HARDENED_RUNTIME = YES;
 				ENABLE_PREVIEWS = YES;
@@ -270,6 +276,7 @@
 					"$(inherited)",
 					"@executable_path/../Frameworks",
 				);
+				MACOSX_DEPLOYMENT_TARGET = 26.0;
 				MARKETING_VERSION = 0.1;
 				PRODUCT_BUNDLE_IDENTIFIER = io.github.fantasticisland.mac;
 				PRODUCT_NAME = "$(TARGET_NAME)";
@@ -286,13 +293,15 @@
 		403C211B2F8CAF6300C9A86C /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
-				ASSETCATALOG_COMPILER_APPICON_NAME = FantasticIsland;
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				ASSETCATALOG_COMPILER_INCLUDE_ALL_APPICON_ASSETS = NO;
 				CODE_SIGN_ENTITLEMENTS = Support/FantasticIsland.entitlements;
 				CODE_SIGN_STYLE = Automatic;
 				COMBINE_HIDPI_IMAGES = YES;
 				CURRENT_PROJECT_VERSION = 1;
 				DEAD_CODE_STRIPPING = YES;
+				DEVELOPMENT_TEAM = S3A3QT47L6;
 				ENABLE_APP_SANDBOX = NO;
 				ENABLE_HARDENED_RUNTIME = YES;
 				ENABLE_PREVIEWS = YES;
@@ -305,6 +314,7 @@
 					"$(inherited)",
 					"@executable_path/../Frameworks",
 				);
+				MACOSX_DEPLOYMENT_TARGET = 26.0;
 				MARKETING_VERSION = 0.1;
 				PRODUCT_BUNDLE_IDENTIFIER = io.github.fantasticisland.mac;
 				PRODUCT_NAME = "$(TARGET_NAME)";

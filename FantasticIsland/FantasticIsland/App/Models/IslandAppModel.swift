@@ -69,6 +69,7 @@ final class IslandAppModel: ObservableObject {
     @Published private(set) var islandPeeking = false
     @Published private(set) var islandExpansionAnimationInFlight = false
     @Published private(set) var islandCollapseAnimationInFlight = false
+    @Published var islandClosedHovering = false
     @Published var selectedModuleID: String
     @Published private(set) var allActivities: [IslandActivity] = []
     @Published private(set) var frontmostActivity: IslandActivity?
@@ -106,6 +107,8 @@ final class IslandAppModel: ObservableObject {
     private var lockedExpandedContentHeight: CGFloat?
     private var pendingExpandedLayoutRefresh = false
     private var pendingAggregateRefresh = false
+    private var pendingShellRepositionWorkItem: DispatchWorkItem?
+    private var pendingShellRepositionNeedsRootView = false
     private var spinAnchorDate = Date()
     private var spinAnchorDegrees = 0.0
     private var lastAggregateRefreshAt = Date()
@@ -359,7 +362,7 @@ final class IslandAppModel: ObservableObject {
             .receive(on: RunLoop.main)
             .sink { [weak self] telemetry in
                 self?.computerFanTelemetry = telemetry
-                self?.shellController.reposition(refreshRootView: true)
+                self?.requestShellReposition(refreshRootView: true)
             }
             .store(in: &cancellables)
     }
@@ -393,6 +396,7 @@ final class IslandAppModel: ObservableObject {
         notificationAutoCollapseTask = nil
         openReason = nil
         islandPeeking = false
+        islandClosedHovering = false
         presentedActivity = nil
 #if DEBUG
         debugActiveMockScenario = nil
@@ -461,7 +465,7 @@ final class IslandAppModel: ObservableObject {
                 pendingExpandedLayoutRefresh = true
             }
             if didChange, islandExpanded, !islandLayoutTransitionInFlight {
-                shellController.reposition()
+                requestShellReposition()
             }
         }
     }
@@ -494,7 +498,7 @@ final class IslandAppModel: ObservableObject {
         objectWillChange.send()
 
         if islandExpanded {
-            shellController.reposition()
+            requestShellReposition()
         }
     }
 
@@ -581,7 +585,7 @@ final class IslandAppModel: ObservableObject {
         UserDefaults.standard.set(showsPanel, forKey: IslandDefaults.windDriveShowsExpandedPanelKey)
 
         if !islandLayoutTransitionInFlight {
-            shellController.reposition()
+            requestShellReposition()
         }
     }
 
@@ -617,10 +621,6 @@ final class IslandAppModel: ObservableObject {
     }
 
 #if DEBUG
-    func openDesignTokenEditor() {
-        designTokenEditorWindowController.show()
-    }
-
     func setDebugPanelLockMode(_ mode: IslandDebugPanelLockMode) {
         guard debugPanelLockMode != mode else {
             return
@@ -684,9 +684,7 @@ final class IslandAppModel: ObservableObject {
                     }
 
                     self.objectWillChange.send()
-                    if self.islandExpanded || self.islandPeeking {
-                        self.shellController.reposition(refreshRootView: true)
-                    }
+                    self.requestShellReposition(refreshRootView: self.islandExpanded || self.islandPeeking)
                 }
             }
             .store(in: &cancellables)
@@ -703,6 +701,10 @@ final class IslandAppModel: ObservableObject {
         }
 
         islandExpanded = expanded
+        if expanded && islandExpansionAnimationInFlight {
+            return
+        }
+
         shellController.reposition()
     }
 
@@ -1136,6 +1138,25 @@ final class IslandAppModel: ObservableObject {
         pendingAggregateRefresh = false
         objectWillChange.send()
         refreshFromModules(now: .now)
+    }
+
+    private func requestShellReposition(refreshRootView: Bool = false) {
+        pendingShellRepositionNeedsRootView = pendingShellRepositionNeedsRootView || refreshRootView
+        pendingShellRepositionWorkItem?.cancel()
+
+        let workItem = DispatchWorkItem { [weak self] in
+            guard let self else {
+                return
+            }
+
+            let needsRootView = self.pendingShellRepositionNeedsRootView
+            self.pendingShellRepositionNeedsRootView = false
+            self.pendingShellRepositionWorkItem = nil
+            self.shellController.reposition(refreshRootView: needsRootView)
+        }
+
+        pendingShellRepositionWorkItem = workItem
+        DispatchQueue.main.async(execute: workItem)
     }
 
     private func lockExpandedLayoutHeight() {

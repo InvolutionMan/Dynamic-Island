@@ -151,6 +151,7 @@ enum DesignTokenEditorLocalization {
         }
     }
 
+#if DEBUG
     static func debugLockModeTitle(_ mode: IslandDebugPanelLockMode, locale: Locale) -> String {
         let text: DesignTokenLocalizedText
         switch mode {
@@ -229,6 +230,7 @@ enum DesignTokenEditorLocalization {
             return "已觸發 \(debugScenarioTitle(scenario, locale: locale))。"
         }
     }
+#endif
 
     private static let groupTitles: [IslandDesignTokenGroup: DesignTokenLocalizedText] = [
         .shell: DesignTokenLocalizedText("Shell", "壳体", "殼體"),
@@ -243,6 +245,7 @@ enum DesignTokenEditorLocalization {
         .shellOpenedShadowHorizontalInset: DesignTokenLocalizedText("Shadow Horizontal Inset", "阴影水平外扩"),
         .shellOpenedSurfaceContentHorizontalInset: DesignTokenLocalizedText("Surface Horizontal Inset", "内容安全水平内边距"),
         .shellClosedHoverScale: DesignTokenLocalizedText("Closed Hover Scale", "收起态悬停缩放"),
+        .shellClosedRestingDotSize: DesignTokenLocalizedText("Closed Resting Dot Size", "收起态静止圆点尺寸"),
         .shellClosedHorizontalPadding: DesignTokenLocalizedText("Closed Horizontal Padding", "收起态水平内边距"),
         .shellClosedFanModuleSpacing: DesignTokenLocalizedText("Closed Fan-to-Modules Spacing", "收起态风扇与模块间距"),
         .shellClosedModuleSpacing: DesignTokenLocalizedText("Closed Module Spacing", "收起态模块间距"),
@@ -343,6 +346,7 @@ enum DesignTokenEditorLocalization {
         .shellOpenedShadowHorizontalInset: DesignTokenLocalizedText("Opened shell outer shadow width.", "控制展开态外层阴影横向延展范围，数值越大阴影覆盖越宽。"),
         .shellOpenedSurfaceContentHorizontalInset: DesignTokenLocalizedText("Opened shell content safe inset.", "控制展开态内容距离壳体左右边缘的安全间距。"),
         .shellClosedHoverScale: DesignTokenLocalizedText("Hover scale applied in collapsed state.", "控制收起态鼠标悬停时的放大幅度。"),
+        .shellClosedRestingDotSize: DesignTokenLocalizedText("Diameter of the resting collapsed dot before hover.", "控制收起态在未悬停时那颗小黑点的直径。"),
         .shellClosedHorizontalPadding: DesignTokenLocalizedText("Left and right inset for the collapsed header row.", "控制收起态整行内容距离左右边缘的留白。"),
         .shellClosedFanModuleSpacing: DesignTokenLocalizedText("Gap between the fan icon and the compact module summary area.", "控制左侧风扇图标和右侧紧凑模块摘要区之间的距离。"),
         .shellClosedModuleSpacing: DesignTokenLocalizedText("Gap between compact module summaries.", "控制收起态各模块摘要之间的横向距离。"),

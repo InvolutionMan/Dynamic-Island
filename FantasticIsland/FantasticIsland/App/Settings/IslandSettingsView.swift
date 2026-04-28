@@ -96,25 +96,6 @@ struct IslandSettingsView: View {
                 selection = .windDrive
             }
 
-            SidebarItemButton(
-                title: "About",
-                subtitle: "Product, version, credits",
-                symbolName: "info.circle",
-                isSelected: selection == .about
-            ) {
-                selection = .about
-            }
-
-#if DEBUG
-            SidebarItemButton(
-                title: "Design Tokens",
-                subtitle: "Open the runtime token editor",
-                symbolName: "dial.high",
-                isSelected: false
-            ) {
-                model.openDesignTokenEditor()
-            }
-#endif
         }
     }
 
@@ -147,8 +128,6 @@ struct IslandSettingsView: View {
                     generalPage
                 case .windDrive:
                     windDrivePage
-                case .about:
-                    IslandAboutPage()
                 case let .module(moduleID):
                     modulePage(moduleID: moduleID)
                 }
@@ -1374,7 +1353,6 @@ struct IslandSettingsView: View {
 private enum IslandSettingsDestination: Hashable {
     case general
     case windDrive
-    case about
     case module(String)
 }
 

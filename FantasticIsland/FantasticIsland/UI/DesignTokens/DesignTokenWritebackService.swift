@@ -59,6 +59,7 @@ struct DesignTokenWritebackService {
                     number("defaultOpenedShadowHorizontalInset", tokens.shell.openedShadowHorizontalInset),
                     number("defaultOpenedSurfaceContentHorizontalInset", tokens.shell.openedSurfaceContentHorizontalInset),
                     number("defaultClosedHoverScale", tokens.shell.closedHoverScale),
+                    number("defaultClosedRestingDotSize", tokens.shell.closedRestingDotSize),
                     number("defaultClosedHorizontalPadding", tokens.shell.closedHorizontalPadding),
                     number("defaultClosedFanModuleSpacing", tokens.shell.closedFanModuleSpacing),
                     number("defaultClosedModuleSpacing", tokens.shell.closedModuleSpacing),

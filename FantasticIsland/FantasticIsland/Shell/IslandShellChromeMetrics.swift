@@ -29,7 +29,10 @@ enum CodexIslandChromeMetrics {
     static let defaultOpenedShadowBottomInset: CGFloat = 0 // 展开态外层阴影为面板额外占用的底部空间
     static let defaultOpenedSurfaceBottomInset: CGFloat = 0 // 展开态黑色壳体本身相对底边预留的安全距离
     static let defaultOpenedSurfaceContentHorizontalInset: CGFloat = 22
+    static let defaultOpenedTopScreenOverlap: CGFloat = 2
     static let defaultClosedHoverScale: CGFloat = 1.028
+    static let defaultClosedRestingDotSize: CGFloat = 26
+    static let defaultClosedRestingDotYOffset: CGFloat = 2
     static let defaultClosedHorizontalPadding: CGFloat = 20
     static let defaultClosedFanModuleSpacing: CGFloat = 16
     static let defaultClosedModuleSpacing: CGFloat = 8
@@ -61,7 +64,10 @@ enum CodexIslandChromeMetrics {
     static var openedShadowBottomInset: CGFloat { CGFloat(IslandDesignTokenRuntime.current.shell.openedShadowBottomInset) }
     static var openedSurfaceBottomInset: CGFloat { CGFloat(IslandDesignTokenRuntime.current.shell.openedSurfaceBottomInset) }
     static var openedSurfaceContentHorizontalInset: CGFloat { CGFloat(IslandDesignTokenRuntime.current.shell.openedSurfaceContentHorizontalInset) }
+    static var openedTopScreenOverlap: CGFloat { defaultOpenedTopScreenOverlap }
     static var closedHoverScale: CGFloat { CGFloat(IslandDesignTokenRuntime.current.shell.closedHoverScale) }
+    static var closedRestingDotSize: CGFloat { CGFloat(IslandDesignTokenRuntime.current.shell.closedRestingDotSize) }
+    static var closedRestingDotYOffset: CGFloat { defaultClosedRestingDotYOffset }
     static var closedHorizontalPadding: CGFloat { CGFloat(IslandDesignTokenRuntime.current.shell.closedHorizontalPadding) }
     static var closedFanModuleSpacing: CGFloat { CGFloat(IslandDesignTokenRuntime.current.shell.closedFanModuleSpacing) }
     static var closedModuleSpacing: CGFloat { CGFloat(IslandDesignTokenRuntime.current.shell.closedModuleSpacing) }

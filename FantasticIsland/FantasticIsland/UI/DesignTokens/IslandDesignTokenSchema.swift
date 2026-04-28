@@ -21,6 +21,7 @@ enum IslandDesignTokenKey: String, CaseIterable, Identifiable {
     case shellOpenedShadowHorizontalInset
     case shellOpenedSurfaceContentHorizontalInset
     case shellClosedHoverScale
+    case shellClosedRestingDotSize
     case shellClosedHorizontalPadding
     case shellClosedFanModuleSpacing
     case shellClosedModuleSpacing
@@ -184,6 +185,7 @@ enum IslandDesignTokenSchema {
         descriptor(.shellOpenedShadowHorizontalInset, .shell, "Shadow Horizontal Inset", "Opened shell outer shadow width.", .slider(range: 0 ... 40, step: 1), \.shell.openedShadowHorizontalInset),
         descriptor(.shellOpenedSurfaceContentHorizontalInset, .shell, "Surface Horizontal Inset", "Opened shell content safe inset.", .slider(range: 0 ... 40, step: 1), \.shell.openedSurfaceContentHorizontalInset),
         descriptor(.shellClosedHoverScale, .shell, "Closed Hover Scale", "Hover scale applied in collapsed state.", .slider(range: 1 ... 1.1, step: 0.001), \.shell.closedHoverScale),
+        descriptor(.shellClosedRestingDotSize, .shell, "Closed Resting Dot Size", "Diameter of the resting collapsed dot before hover.", .slider(range: 16 ... 38, step: 1), \.shell.closedRestingDotSize),
         descriptor(.shellClosedHorizontalPadding, .shell, "Closed Horizontal Padding", "Left and right inset for the collapsed header row.", .slider(range: 0 ... 30, step: 1), \.shell.closedHorizontalPadding),
         descriptor(.shellClosedFanModuleSpacing, .shell, "Closed Fan-to-Modules Spacing", "Gap between the fan icon and the compact module summary area.", .slider(range: 0 ... 30, step: 1), \.shell.closedFanModuleSpacing),
         descriptor(.shellClosedModuleSpacing, .shell, "Closed Module Spacing", "Gap between compact module summaries.", .slider(range: 0 ... 40, step: 1), \.shell.closedModuleSpacing),

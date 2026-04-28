@@ -79,7 +79,6 @@ struct IslandShellView: View {
     let expandedContentTopClearance: CGFloat
     let closedContentNotchExclusionWidth: CGFloat
 
-    @State private var isHovering = false
     @State private var visualMode: IslandShellVisualMode = .closed
     @State private var peekRenderState: PeekRenderState?
     @State private var showsClosedHeader = true
@@ -147,6 +146,9 @@ struct IslandShellView: View {
         let layoutWidth = max(0, availableSize.width - (panelShadowHorizontalInset * 2))
         let layoutHeight = max(0, availableSize.height - panelShadowBottomInset)
         let openSurfaceHorizontalInset = CodexIslandChromeMetrics.openedSurfaceContentHorizontalInset
+        let restingDotSize = min(closedHeight, CodexIslandChromeMetrics.closedRestingDotSize)
+        let restingDotYOffset = CodexIslandChromeMetrics.closedRestingDotYOffset
+        let shellVerticalOffset = usesExpandedLayoutBounds ? -CodexIslandChromeMetrics.openedTopScreenOverlap : restingDotYOffset
 
         let closedTotalWidth = closedContentWidth
         let resolvedExpandedContentWidth = CodexIslandChromeMetrics.resolvedExpandedContentWidth(
@@ -183,7 +185,10 @@ struct IslandShellView: View {
         let surfaceMetrics: (width: CGFloat, height: CGFloat) = {
             switch visualMode {
             case .closed:
-                return (closedTotalWidth, closedHeight)
+                if model.islandClosedHovering {
+                    return (closedTotalWidth, closedHeight)
+                }
+                return (restingDotSize, restingDotSize)
             case .peek:
                 return (peekSurfaceWidth, peekSurfaceHeight)
             case .expanded:
@@ -195,16 +200,22 @@ struct IslandShellView: View {
 
         let openBodyWidth = max(0, surfaceWidth - (openSurfaceHorizontalInset * 2))
         let premeasuredModuleColumnWidth = expandedModuleColumnWidth(for: resolvedExpandedContentWidth)
-        let surfaceShape = CodexNotchShape(
-            topCornerRadius: usesOpenedVisualState ? CodexNotchShape.openedTopRadius : CodexNotchShape.closedTopRadius,
-            bottomCornerRadius: usesOpenedVisualState ? CodexNotchShape.openedBottomRadius : CodexNotchShape.closedBottomRadius
+        let openedSurfaceShape = CodexNotchShape(
+            topCornerRadius: CodexNotchShape.openedTopRadius,
+            bottomCornerRadius: CodexNotchShape.openedBottomRadius
         )
 
         VStack(spacing: 0) {
             ZStack(alignment: .top) {
-                surfaceShape
+                Capsule()
                     .fill(Color.black)
                     .frame(width: surfaceWidth, height: surfaceHeight)
+                    .opacity(usesOpenedVisualState ? 0 : 1)
+
+                openedSurfaceShape
+                    .fill(Color.black)
+                    .frame(width: surfaceWidth, height: surfaceHeight)
+                    .opacity(usesOpenedVisualState ? 1 : 0)
 
                 ZStack(alignment: .top) {
                     headerRow
@@ -217,24 +228,31 @@ struct IslandShellView: View {
                         .clipped()
                 }
                 .frame(width: surfaceWidth, height: surfaceHeight, alignment: .top)
-                .clipShape(surfaceShape)
+                .clipShape(usesOpenedVisualState ? AnyShape(openedSurfaceShape) : AnyShape(Capsule()))
                 .overlay(alignment: .top) {
                     Rectangle()
                         .fill(Color.black)
                         .frame(height: 1)
-                        .padding(.horizontal, usesOpenedVisualState ? CodexNotchShape.openedTopRadius : CodexNotchShape.closedTopRadius)
+                        .padding(.horizontal, usesOpenedVisualState ? CodexNotchShape.openedTopRadius : closedHeight / 2)
                 }
                 .overlay {
-                    surfaceShape
-                        .strokeBorder(Color.white.opacity(usesOpenedVisualState ? 0.07 : 0.04), lineWidth: 1)
+                    if usesOpenedVisualState {
+                        openedSurfaceShape
+                            .strokeBorder(Color.white.opacity(0.07), lineWidth: 1)
+                    } else {
+                        Capsule()
+                            .strokeBorder(Color.white.opacity(0.04), lineWidth: 1)
+                            .frame(width: surfaceWidth, height: surfaceHeight)
+                    }
                 }
             }
             .frame(width: surfaceWidth, height: surfaceHeight, alignment: .top)
+            .offset(y: shellVerticalOffset)
         }
-        .scaleEffect(usesOpenedVisualState ? 1 : (isHovering ? CodexIslandChromeMetrics.closedHoverScale : 1), anchor: .top)
         .padding(.horizontal, panelShadowHorizontalInset)
         .padding(.bottom, panelShadowBottomInset)
         .animation(islandTransitionAnimation, value: visualMode)
+        .animation(.snappy(duration: 0.16, extraBounce: 0), value: model.islandClosedHovering)
         .overlay(alignment: .topLeading) {
             collapsedModulePremeasurementView(width: premeasuredModuleColumnWidth)
         }
@@ -268,11 +286,6 @@ struct IslandShellView: View {
             showsClosedHeader = true
             showsPeekBody = false
             peekRenderState = nil
-        }
-        .onHover { hovering in
-            withAnimation(.spring(response: 0.38, dampingFraction: 0.8)) {
-                isHovering = hovering
-            }
         }
         .onTapGesture {
             if !model.islandExpanded {
@@ -449,8 +462,8 @@ struct IslandShellView: View {
             ),
             notchExclusionWidth: closedContentNotchExclusionWidth
         )
-            .opacity(showsClosedHeader ? 1 : 0)
-            .allowsHitTesting(visualMode == .closed && showsClosedHeader)
+            .opacity(showsClosedHeader && model.islandClosedHovering ? 1 : 0)
+            .allowsHitTesting(visualMode == .closed && showsClosedHeader && model.islandClosedHovering)
             .frame(height: closedHeight)
             .clipped()
     }

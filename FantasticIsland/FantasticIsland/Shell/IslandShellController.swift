@@ -101,6 +101,7 @@ final class IslandShellController {
         panel.orderFrontRegardless()
         panel.ignoresMouseEvents = false
         panel.acceptsMouseMovedEvents = true
+        model.islandClosedHovering = false
         hideClosedActivationPanel()
         startEventMonitoring()
     }
@@ -127,6 +128,7 @@ final class IslandShellController {
         let isInteractive = model.isInteractivePeeking
         panel.ignoresMouseEvents = !isInteractive
         panel.acceptsMouseMovedEvents = isInteractive
+        model.islandClosedHovering = false
         hideClosedActivationPanel()
         startEventMonitoring()
     }
@@ -324,12 +326,23 @@ final class IslandShellController {
 
     private func holdingPanelFrame(for model: IslandAppModel, on screen: NSScreen) -> NSRect {
         let size = holdingPanelSize(for: model, on: screen)
+        let topScreenOverlap = panelTopScreenOverlap(for: model)
         return NSRect(
             x: screen.frame.midX - size.width / 2,
-            y: screen.frame.maxY - size.height,
+            y: screen.frame.maxY - size.height + topScreenOverlap,
             width: size.width,
             height: size.height
         )
+    }
+
+    private func panelTopScreenOverlap(for model: IslandAppModel) -> CGFloat {
+        guard model.islandUsesOpenedVisualState
+                || model.islandExpansionAnimationInFlight
+                || model.islandCollapseAnimationInFlight else {
+            return 0
+        }
+
+        return CodexIslandChromeMetrics.openedTopScreenOverlap
     }
 
     private func holdingPanelSize(for model: IslandAppModel, on screen: NSScreen) -> CGSize {
@@ -561,6 +574,24 @@ final class IslandShellController {
         model.expandIsland(reason: .manualTap)
     }
 
+    fileprivate func handleClosedActivationHoverEnter() {
+        guard let model, !model.islandExpanded, !model.islandPeeking else {
+            return
+        }
+        guard !model.islandClosedHovering else {
+            return
+        }
+        model.islandClosedHovering = true
+    }
+
+    fileprivate func handleClosedActivationHoverExit() {
+        guard let model else { return }
+        guard model.islandClosedHovering else {
+            return
+        }
+        model.islandClosedHovering = false
+    }
+
     private func screenPoint(for event: NSEvent) -> NSPoint {
         if let window = event.window {
             return window.convertPoint(toScreen: event.locationInWindow)
@@ -661,11 +692,35 @@ private final class IslandShellHostingView<Content: View>: NSHostingView<Content
 
 private final class IslandClosedActivationView: NSView {
     weak var notchController: IslandShellController?
+    private var hoverTrackingArea: NSTrackingArea?
 
     override var isOpaque: Bool { false }
 
     override func acceptsFirstMouse(for event: NSEvent?) -> Bool {
         true
+    }
+
+    override func updateTrackingAreas() {
+        super.updateTrackingAreas()
+        if let existing = hoverTrackingArea {
+            removeTrackingArea(existing)
+        }
+        let area = NSTrackingArea(
+            rect: bounds,
+            options: [.mouseEnteredAndExited, .activeAlways],
+            owner: self,
+            userInfo: nil
+        )
+        addTrackingArea(area)
+        hoverTrackingArea = area
+    }
+
+    override func mouseEntered(with event: NSEvent) {
+        notchController?.handleClosedActivationHoverEnter()
+    }
+
+    override func mouseExited(with event: NSEvent) {
+        notchController?.handleClosedActivationHoverExit()
     }
 
     override func mouseDown(with event: NSEvent) {
